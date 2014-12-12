@@ -1,0 +1,10 @@
+<h1>Success</h1>
+
+{% if calendar_list %}
+    <ul>
+    {% for calendar in calendar_list %}
+        <li>{{ calendar }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
