@@ -1,52 +1,50 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from gcal_api.google_calendar_dups import GCalMover
-from apiclient.discovery import build
-from oauth2client.client import OAuth2WebServerFlow
-import json
-
-from django.contrib.auth.models import User
-from oauth2client.django_orm import Storage
-from pick_calendar.models import CredentialsModel
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from django.template import RequestContext
-
-
-#def index(request):
-    ##from pudb import set_trace; set_trace()
-    #gcm = GCalMover()
-    #calendars = gcm.get_calendars()
-    ##calendar_list = None #TODO: get calendar_list
-    #context = {'choice_list': calendars,
-               #'question': 'Select source calendar(s)',
-               #'error_message': '',
-               #'form_url': reverse('pick_calendar:pick_calendar')}
-    #return render(request, 'pick_calendar/index.html', context)
+from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.django_orm import Storage
+import json
+from gcal_api.google_calendar_dups import GCalMover
+from pick_calendar.models import CredentialsModel
 
 def index(request):
     c = RequestContext(request)
     return render(request, 'pick_calendar/index.html', c)
 
 def calendars(request):
-    from pudb import set_trace; set_trace()
     user = request.user 
     storage = Storage(CredentialsModel, 'id', user, 'credential')
     creds = storage.get()
     gcm = GCalMover(creds)
     calendars = gcm.get_calendars()
-    #calendar_list = None #TODO: get calendar_list
     context = {'choice_list': calendars,
                'question': 'Select source calendar(s)',
                'error_message': '',
                'form_url': reverse('pick_calendar:select_calendars')}
     return render(request, 'pick_calendar/calendars.html', context)
 
-def select_calendars(request, calendar_list=None):
+def select_calendars(request):
     calendar_list = request.POST.getlist('choice')
     return render(request, 
                   'pick_calendar/select_calendars.html', 
                   {'calendar_list': calendar_list})
+
+def auth(request):
+    CLIENT_ID = '***REMOVED***.apps.googleusercontent.com'
+    CLIENT_SECRET = '***REMOVED***'
+    SCOPE = ('https://www.googleapis.com/auth/calendar ' 
+          'https://www.googleapis.com/auth/userinfo.email ' 
+          'https://www.googleapis.com/auth/userinfo.profile')
+    redirect_uri = 'http://localhost:8000/pick_calendar/authdone/'
+    flow = OAuth2WebServerFlow(CLIENT_ID,
+                               CLIENT_SECRET,
+                               SCOPE,
+                               redirect_uri=redirect_uri)
+    #request.session['flow'] = flow
+    uri = flow.step1_get_authorize_url()
+    return redirect(uri)
 
 def authdone(request):
     #from pudb import set_trace; set_trace()
@@ -86,22 +84,5 @@ def authdone(request):
         # TODO: handle 
         pass 
 
-    redirect_uri = 'http://localhost:8000/pick_calendar/'
-    #return redirect(redirect_uri)
     return redirect('pick_calendar:index')
 
-
-def auth(request):
-    CLIENT_ID = '***REMOVED***.apps.googleusercontent.com'
-    CLIENT_SECRET = '***REMOVED***'
-    SCOPE = ('https://www.googleapis.com/auth/calendar ' 
-          'https://www.googleapis.com/auth/userinfo.email ' 
-          'https://www.googleapis.com/auth/userinfo.profile')
-    redirect_uri = 'http://localhost:8000/pick_calendar/authdone/'
-    flow = OAuth2WebServerFlow(CLIENT_ID,
-                               CLIENT_SECRET,
-                               SCOPE,
-                               redirect_uri=redirect_uri)
-    #request.session['flow'] = flow
-    uri = flow.step1_get_authorize_url()
-    return redirect(uri)
