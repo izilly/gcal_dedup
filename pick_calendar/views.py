@@ -10,18 +10,23 @@ from django.contrib.auth.models import User
 from oauth2client.django_orm import Storage
 from pick_calendar.models import CredentialsModel
 from django.contrib.auth import authenticate, login
+from django.template import RequestContext
 
+
+#def index(request):
+    ##from pudb import set_trace; set_trace()
+    #gcm = GCalMover()
+    #calendars = gcm.get_calendars()
+    ##calendar_list = None #TODO: get calendar_list
+    #context = {'choice_list': calendars,
+               #'question': 'Select source calendar(s)',
+               #'error_message': '',
+               #'form_url': reverse('pick_calendar:pick_calendar')}
+    #return render(request, 'pick_calendar/index.html', context)
 
 def index(request):
-    #from pudb import set_trace; set_trace()
-    gcm = GCalMover()
-    calendars = gcm.get_calendars()
-    #calendar_list = None #TODO: get calendar_list
-    context = {'choice_list': calendars,
-               'question': 'Select source calendar(s)',
-               'error_message': '',
-               'form_url': reverse('pick_calendar:pick_calendar')}
-    return render(request, 'pick_calendar/index.html', context)
+    c = RequestContext(request)
+    return render(request, 'pick_calendar/index.html', c)
 
 def pick_calendar(request):
     #from pudb import set_trace; set_trace()
@@ -76,7 +81,7 @@ def authdone(request):
                'question': 'Select source calendar(s)',
                'error_message': '',
                'form_url': reverse('pick_calendar:pick_calendar')}
-    return render(request, 'pick_calendar/index.html', context)
+    return render(request, 'pick_calendar/calendars.html', context)
 
 
 def auth(request):

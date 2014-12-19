@@ -1,0 +1,27 @@
+<div style="float:left;">
+    <a href="{%url 'pick_calendar:index' %}">gcal_dedup</a>
+</div>
+
+<div style="float:right;">
+    {% if user.username %}
+        <div>
+            {{ user.username }}
+        </div>
+        <div>
+            <a href="{%url 'pick_calendar:logout' %}">logout</a>
+        </div>
+    {% else %}
+        <div>
+            <a href="{%url 'pick_calendar:auth' %}">login</a>
+        </div>
+    {% endif %}
+</div>
+
+<div style="clear:both;"></div>
+<hr>
+
+<div id="content">
+    {% block content %}{% endblock %}
+</div>
+
+

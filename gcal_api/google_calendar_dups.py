@@ -5,11 +5,7 @@ import sys
 import re
 import httplib2
 from apiclient.discovery import build
-#from google_oauth import GoogleAuthService
-#from .google_oauth import GoogleAuthService
 
-CLIENT_ID = '***REMOVED***.apps.googleusercontent.com'
-CLIENT_SECRET = '***REMOVED***'
 
 REMOVE_ATTRS = ['id', 'htmlLink', 'iCalUID', 'gadget', 'attendees']
 
@@ -20,21 +16,6 @@ class GCalMover(object):
     def __init__(self, credentials):
         self.credentials = credentials
         self.get_gcal_service()
-
-        #self.source_calendar_id = calendar_id
-        #self.oauth_client_id = CLIENT_ID
-        #self.oauth_client_secret = CLIENT_SECRET
-        #self.gcal_api = GoogleAuthService(self.oauth_client_id, 
-                                          #self.oauth_client_secret)
-        #self.service = self.gcal_api.service
-        #self.get_colors()
-        #self.get_calendars()
-        #self.gcal_events = self.gcal_api.service.events()
-
-    #def get_colors(self):
-        #self.colors = self.service.colors().get().execute()
-        #self.colors_cal = self.colors.get('calendar') 
-        #self.colors_event = self.colors.get('event') 
 
     def get_gcal_service(self):
         # Create an httplib2.Http object to handle our HTTP requests, 
@@ -64,7 +45,6 @@ class GCalMover(object):
                 break
         self.calendars = calendars
         return calendars
-
 
     def process_calendar_dups(self, 
                               destination_calendar_id=None,
@@ -250,7 +230,6 @@ def main():
                               #dry_run=True,
                               #include_desc=True,
                               replace_text=[(r'\\n',''), (r'\\',''), (r'\n','')])
-
 
 if __name__ == '__main__':
   main()

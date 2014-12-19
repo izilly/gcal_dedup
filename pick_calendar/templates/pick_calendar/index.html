@@ -1,17 +1,2 @@
-<h1>{{ question }}</h1>
-
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
-{% if choice_list %}
-    <form action="{{ form_url }}" method="post">
-    {% csrf_token %}
-    {% for choice in choice_list %}
-        <input type="checkbox" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" />
-        <label for="choice{{ forloop.counter }}">{{ choice.summary }}</label><br />
-    {% endfor %}
-    <input type="submit" value="Submit" />
-    </form>
-{% else %}
-    <p>Error getting list of calendars</p>
-{% endif %}
+{% extends "pick_calendar/base.html" %}
 
