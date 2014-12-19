@@ -28,18 +28,28 @@ def index(request):
     c = RequestContext(request)
     return render(request, 'pick_calendar/index.html', c)
 
-def pick_calendar(request):
-    #from pudb import set_trace; set_trace()
-    calendar_list = request.POST.getlist('choice')
-    return picked(request, calendar_list=calendar_list)
+def select_calendar(request):
+    from pudb import set_trace; set_trace()
+    user = request.user 
+    storage = Storage(CredentialsModel, 'id', user, 'credential')
+    creds = storage.get()
+    gcm = GCalMover(creds)
+    calendars = gcm.get_calendars()
+    #calendar_list = None #TODO: get calendar_list
+    context = {'choice_list': calendars,
+               'question': 'Select source calendar(s)',
+               'error_message': '',
+               'form_url': reverse('pick_calendar:select_calendar_result')}
+    return render(request, 'pick_calendar/select_calendar.html', context)
 
-def picked(request, calendar_list=None):
+def select_calendar_result(request, calendar_list=None):
+    calendar_list = request.POST.getlist('choice')
     return render(request, 
-                  'pick_calendar/picked.html', 
+                  'pick_calendar/select_calendar_result.html', 
                   {'calendar_list': calendar_list})
 
 def authdone(request):
-    from pudb import set_trace; set_trace()
+    #from pudb import set_trace; set_trace()
     CLIENT_ID = '***REMOVED***.apps.googleusercontent.com'
     CLIENT_SECRET = '***REMOVED***'
     SCOPE = ('https://www.googleapis.com/auth/calendar ' 
@@ -67,6 +77,8 @@ def authdone(request):
         user = authenticate(username=email, password=email)
         if user is not None:
             login(request, user)
+            storage = Storage(CredentialsModel, 'id', user, 'credential')
+            storage.put(creds)
         else:
             # TODO: handle 
             pass 
@@ -77,15 +89,6 @@ def authdone(request):
     redirect_uri = 'http://localhost:8000/pick_calendar/'
     #return redirect(redirect_uri)
     return redirect('pick_calendar:index')
-
-    #gcm = GCalMover(creds)
-    #calendars = gcm.get_calendars()
-    ##calendar_list = None #TODO: get calendar_list
-    #context = {'choice_list': calendars,
-               #'question': 'Select source calendar(s)',
-               #'error_message': '',
-               #'form_url': reverse('pick_calendar:pick_calendar')}
-    #return render(request, 'pick_calendar/calendars.html', context)
 
 
 def auth(request):

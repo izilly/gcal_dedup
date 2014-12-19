@@ -1,3 +1,7 @@
+{% extends "pick_calendar/base.html" %}
+
+{% block content %}
+
 <h1>Success</h1>
 
 {% if calendar_list %}
@@ -7,4 +11,6 @@
     {% endfor %}
     </ul>
 {% endif %}
+
+{% endblock %}
 
