@@ -28,7 +28,7 @@ def index(request):
     c = RequestContext(request)
     return render(request, 'pick_calendar/index.html', c)
 
-def select_calendar(request):
+def calendars(request):
     from pudb import set_trace; set_trace()
     user = request.user 
     storage = Storage(CredentialsModel, 'id', user, 'credential')
@@ -39,13 +39,13 @@ def select_calendar(request):
     context = {'choice_list': calendars,
                'question': 'Select source calendar(s)',
                'error_message': '',
-               'form_url': reverse('pick_calendar:select_calendar_result')}
-    return render(request, 'pick_calendar/select_calendar.html', context)
+               'form_url': reverse('pick_calendar:select_calendars')}
+    return render(request, 'pick_calendar/calendars.html', context)
 
-def select_calendar_result(request, calendar_list=None):
+def select_calendars(request, calendar_list=None):
     calendar_list = request.POST.getlist('choice')
     return render(request, 
-                  'pick_calendar/select_calendar_result.html', 
+                  'pick_calendar/select_calendars.html', 
                   {'calendar_list': calendar_list})
 
 def authdone(request):
