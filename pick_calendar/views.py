@@ -74,14 +74,18 @@ def authdone(request):
         # TODO: handle 
         pass 
 
-    gcm = GCalMover(creds)
-    calendars = gcm.get_calendars()
-    #calendar_list = None #TODO: get calendar_list
-    context = {'choice_list': calendars,
-               'question': 'Select source calendar(s)',
-               'error_message': '',
-               'form_url': reverse('pick_calendar:pick_calendar')}
-    return render(request, 'pick_calendar/calendars.html', context)
+    redirect_uri = 'http://localhost:8000/pick_calendar/'
+    #return redirect(redirect_uri)
+    return redirect('pick_calendar:index')
+
+    #gcm = GCalMover(creds)
+    #calendars = gcm.get_calendars()
+    ##calendar_list = None #TODO: get calendar_list
+    #context = {'choice_list': calendars,
+               #'question': 'Select source calendar(s)',
+               #'error_message': '',
+               #'form_url': reverse('pick_calendar:pick_calendar')}
+    #return render(request, 'pick_calendar/calendars.html', context)
 
 
 def auth(request):
