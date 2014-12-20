@@ -8,11 +8,11 @@
             {{ user.username }}
         </div>
         <div>
-            <a href="{%url 'logout' %}">logout</a>
+            <a href="{%url 'auth:logout' %}">logout</a>
         </div>
     {% else %}
         <div>
-            <a href="{%url 'auth' %}">login</a>
+            <a href="{%url 'auth:auth' %}">login</a>
         </div>
     {% endif %}
 </div>
