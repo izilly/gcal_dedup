@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse
 from oauth2client.client import OAuth2WebServerFlow
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
@@ -12,13 +13,11 @@ def auth(request):
     SCOPE = ('https://www.googleapis.com/auth/calendar ' 
           'https://www.googleapis.com/auth/userinfo.email ' 
           'https://www.googleapis.com/auth/userinfo.profile')
-    #redirect_uri = 'http://localhost:8000/pick_calendar/authdone/'
-    redirect_uri = 'http://localhost:8000/auth/authdone/'
+    redirect_uri = request.build_absolute_uri(reverse('auth:authdone'))
     flow = OAuth2WebServerFlow(CLIENT_ID,
                                CLIENT_SECRET,
                                SCOPE,
                                redirect_uri=redirect_uri)
-    #request.session['flow'] = flow
     uri = flow.step1_get_authorize_url()
     return redirect(uri)
 
@@ -29,8 +28,7 @@ def authdone(request):
     SCOPE = ('https://www.googleapis.com/auth/calendar ' 
           'https://www.googleapis.com/auth/userinfo.email ' 
           'https://www.googleapis.com/auth/userinfo.profile')
-    #redirect_uri = 'http://localhost:8000/pick_calendar/authdone/'
-    redirect_uri = 'http://localhost:8000/auth/authdone/'
+    redirect_uri = request.build_absolute_uri(reverse('auth:authdone'))
     flow = OAuth2WebServerFlow(CLIENT_ID,
                                CLIENT_SECRET,
                                SCOPE,
