@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from oauth2client.django_orm import Storage
 from gcal_api.google_calendar_dups import GCalMover
-from pick_calendar.models import CredentialsModel
+from auth.models import CredentialsModel
 
 def index(request):
     #TODO: move out of pick_calendar, and into main site
