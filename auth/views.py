@@ -24,6 +24,9 @@ def get_flow(request):
     return flow
 
 def login(request):
+    # save the 'next' query string parameter (or None) in the session so we can 
+    # redirect there after logged_in
+    request.session['login_redirect'] = request.GET.get('next')
     flow = get_flow(request)
     uri = flow.step1_get_authorize_url()
     return redirect(uri)
@@ -55,6 +58,12 @@ def logged_in(request):
     else:
         # TODO: handle 
         pass 
-    return redirect('index')
+
+    # if session['login_redirect'] is not empty, redirect there...
+    login_redirect_uri = request.session.get('login_redirect')
+    # otherwise, redirect to 'index'
+    if not login_redirect_uri:
+        login_redirect_uri = 'index'
+    return redirect(login_redirect_uri)
 
 
