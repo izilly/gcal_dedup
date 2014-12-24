@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from oauth2client.client import OAuth2WebServerFlow
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
+from django.contrib.auth import login as django_login
 from oauth2client.django_orm import Storage
 import json
 from auth.models import CredentialsModel
@@ -15,19 +16,19 @@ def get_flow(request):
     SCOPE = ('https://www.googleapis.com/auth/calendar ' 
              'https://www.googleapis.com/auth/userinfo.email ' 
              'https://www.googleapis.com/auth/userinfo.profile')
-    redirect_uri = request.build_absolute_uri(reverse('auth:authdone'))
+    redirect_uri = request.build_absolute_uri(reverse('auth:logged_in'))
     flow = OAuth2WebServerFlow(CLIENT_ID,
                                CLIENT_SECRET,
                                SCOPE,
                                redirect_uri=redirect_uri)
     return flow
 
-def auth(request):
+def login(request):
     flow = get_flow(request)
     uri = flow.step1_get_authorize_url()
     return redirect(uri)
 
-def authdone(request):
+def logged_in(request):
     flow = get_flow(request)
     code = request.GET['code']
     creds = flow.step2_exchange(code)
@@ -45,7 +46,7 @@ def authdone(request):
             user.save()
         user = authenticate(username=email, password=email)
         if user is not None:
-            login(request, user)
+            django_login(request, user)
             storage = Storage(CredentialsModel, 'id', user, 'credential')
             storage.put(creds)
         else:
