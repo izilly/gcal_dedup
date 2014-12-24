@@ -4,12 +4,15 @@ from django.template import RequestContext
 from oauth2client.django_orm import Storage
 from gcal_api.google_calendar_dups import GCalMover
 from auth.models import CredentialsModel
+from django.contrib.auth.decorators import login_required
+
 
 def index(request):
     #TODO: move out of pick_calendar, and into main site
     c = RequestContext(request)
     return render(request, 'pick_calendar/index.html', c)
 
+@login_required
 def calendars(request):
     #TODO: handle when user is not logged in 
     user = request.user 

@@ -3,7 +3,7 @@ from django.contrib.auth.views import logout
 from auth import views
 
 urlpatterns = patterns('',
-    url(r'^auth/', views.auth,  name='auth'),
+    url(r'^login/$', views.auth,  name='auth'),
     url(r'^authdone/', views.authdone,  name='authdone'),
     url(r'^logout/', logout, 
         {'template_name': 'auth/logged_out.html'}, 
