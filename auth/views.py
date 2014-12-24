@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from oauth2client.django_orm import Storage
 import json
-from auth.models import CredentialsModel, FlowModel
+from auth.models import CredentialsModel
 
 
 def get_flow(request):
@@ -54,6 +54,6 @@ def authdone(request):
     else:
         # TODO: handle 
         pass 
-    return redirect('pick_calendar:index')
+    return redirect('index')
 
 
