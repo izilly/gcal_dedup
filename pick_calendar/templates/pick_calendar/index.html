@@ -1,6 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<a href="{%url 'pick_calendar:calendars' %}">Select source calendar</a>
+
+<div id="source">
+    <div class="prompt"> 
+        Source Calendar(s):
+    </div>
+    <div class="select">
+        <a href="{%url 'pick_calendar:calendars' 'source' %}">
+            Select source calendar(s)
+        </a>
+    </div>
+</div>
+
+<div id="source">
+    <div class="prompt"> 
+        Destination Calendar(s):
+    </div>
+    <div class="select">
+        <a href="{%url 'pick_calendar:calendars' 'destination' %}">
+            Select destination calendar(s)
+        </a>
+    </div>
+</div>
+
 {% endblock %}
 

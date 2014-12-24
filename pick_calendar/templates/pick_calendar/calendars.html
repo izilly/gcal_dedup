@@ -10,7 +10,7 @@
     <form action="{{ form_url }}" method="post">
     {% csrf_token %}
     {% for choice in choice_list %}
-        <input type="checkbox" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" />
+    <input type="{{ form_type  }}" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" />
         <label for="choice{{ forloop.counter }}">{{ choice.summary }}</label><br />
     {% endfor %}
     <input type="submit" value="Submit" />

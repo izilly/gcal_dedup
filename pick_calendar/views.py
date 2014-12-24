@@ -12,23 +12,52 @@ def index(request):
     c = RequestContext(request)
     return render(request, 'pick_calendar/index.html', c)
 
+def get_progress(request):
+    progress = request.session.get('progress')
+    if not progress:
+        progress = {'source': [],
+                    'destination': [],
+                    'completed': None,
+                    }
+        request.session['progress'] = progress
+    return progress
+
 @login_required
-def calendars(request):
+def calendars(request, target):
     #TODO: handle when user is not logged in 
     user = request.user 
     storage = Storage(CredentialsModel, 'id', user, 'credential')
     creds = storage.get()
     gcm = GCalMover(creds)
     calendars = gcm.get_calendars()
+    #from pudb import set_trace; set_trace()
+    question = 'Select {} calendar'.format(target)
+    if target == 'source':
+        form_type = 'checkbox'
+        question = '{}(s)'.format(question)
+    elif target == 'destination':
+        form_type = 'radio'
     context = {'choice_list': calendars,
-               'question': 'Select source calendar(s)',
+               'question': question,
                'error_message': '',
-               'form_url': reverse('pick_calendar:select_calendars')}
+               'form_type': form_type,
+               'form_url': reverse('pick_calendar:calendars_selected', 
+                                   args=(target,))}
     return render(request, 'pick_calendar/calendars.html', context)
 
-def select_calendars(request):
+def calendars_selected(request, target):
     calendar_list = request.POST.getlist('choice')
+    progress = get_progress(request)
+    progress[target] = calendar_list
+    progress['completed'] = target
+    #from pudb import set_trace; set_trace()
     return render(request, 
-                  'pick_calendar/select_calendars.html', 
+                  'pick_calendar/calendars_selected.html', 
                   {'calendar_list': calendar_list})
+
+#def select_calendars(request):
+    #calendar_list = request.POST.getlist('choice')
+    #return render(request, 
+                  #'pick_calendar/select_calendars.html', 
+                  #{'calendar_list': calendar_list})
 
