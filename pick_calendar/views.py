@@ -64,9 +64,10 @@ def calendars_selected(request, target):
     progress[target] = calendars_selected
     progress['completed'] = target
     request.session['progress'] = progress
-    return render(request, 
-                  'pick_calendar/calendars_selected.html', 
-                  {'calendar_list': calendars_selected})
+    return redirect('index')
+    #return render(request, 
+                  #'pick_calendar/calendars_selected.html', 
+                  #{'calendar_list': calendars_selected})
 
 
 #----------------------------------------------------------------------------
@@ -74,7 +75,7 @@ def calendars_selected(request, target):
 #TODO: redirect back to index after choosing source/dest calendars 
 #        (rather than 'success' results page
 
-#TODO: disable destination calendar selection when source calendars not selected
+#DONE: disable destination calendar selection when source calendars not selected
 
 #TODO: remove source calendar(s) from list of destination calendar choices
 
