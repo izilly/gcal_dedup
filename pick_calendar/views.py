@@ -9,8 +9,10 @@ from django.contrib.auth.decorators import login_required
 
 def index(request):
     #TODO: move out of pick_calendar, and into main site
-    c = RequestContext(request)
-    return render(request, 'pick_calendar/index.html', c)
+    #from pudb import set_trace; set_trace()
+    progress = get_progress(request)
+    context = {'progress': progress,}
+    return render(request, 'pick_calendar/index.html', context)
 
 def get_progress(request):
     progress = request.session.get('progress')
@@ -24,12 +26,15 @@ def get_progress(request):
 
 @login_required
 def calendars(request, target):
-    #TODO: handle when user is not logged in 
+    #DONE: handle when user is not logged in 
     user = request.user 
     storage = Storage(CredentialsModel, 'id', user, 'credential')
     creds = storage.get()
     gcm = GCalMover(creds)
     calendars = gcm.get_calendars()
+    progress = get_progress(request)
+    progress['calendar_list'] = calendars
+    request.session['progress'] = progress
     #from pudb import set_trace; set_trace()
     question = 'Select {} calendar'.format(target)
     if target == 'source':
@@ -45,19 +50,43 @@ def calendars(request, target):
                                    args=(target,))}
     return render(request, 'pick_calendar/calendars.html', context)
 
+def get_selected(request, progress):
+    calendar_idxs = request.POST.getlist('choice')
+    calendar_idxs = [int(i) for i in calendar_idxs]
+    calendar_list = progress.get('calendar_list')
+    calendars_selected = [calendar_list[i] for i in calendar_idxs]
+    return calendars_selected
+
 def calendars_selected(request, target):
-    calendar_list = request.POST.getlist('choice')
-    progress = get_progress(request)
-    progress[target] = calendar_list
-    progress['completed'] = target
     #from pudb import set_trace; set_trace()
+    progress = get_progress(request)
+    calendars_selected = get_selected(request, progress)
+    progress[target] = calendars_selected
+    progress['completed'] = target
+    request.session['progress'] = progress
     return render(request, 
                   'pick_calendar/calendars_selected.html', 
-                  {'calendar_list': calendar_list})
+                  {'calendar_list': calendars_selected})
 
-#def select_calendars(request):
-    #calendar_list = request.POST.getlist('choice')
-    #return render(request, 
-                  #'pick_calendar/select_calendars.html', 
-                  #{'calendar_list': calendar_list})
+
+#----------------------------------------------------------------------------
+
+#TODO: redirect back to index after choosing source/dest calendars 
+#        (rather than 'success' results page
+
+#TODO: disable destination calendar selection when source calendars not selected
+
+#TODO: remove source calendar(s) from list of destination calendar choices
+
+#TODO: add a link to reset, start over in source/destination sections 
+
+#TODO: add color to selected calendars 
+
+#TODO: add info/instructions to top of index page 
+
+#TODO: add info about creating a new destination calendar (coming-soon) 
+
+#TODO: add a start/reset button to top of index page 
+
+#----------------------------------------------------------------------------
 

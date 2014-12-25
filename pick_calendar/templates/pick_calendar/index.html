@@ -6,22 +6,43 @@
     <div class="prompt"> 
         Source Calendar(s):
     </div>
-    <div class="select">
-        <a href="{%url 'pick_calendar:calendars' 'source' %}">
-            Select source calendar(s)
-        </a>
-    </div>
+    {% if progress.source %}
+        <div class="source">
+            <ul>
+                {% for source in progress.source %}
+                    <li>{{ source.summary }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div class="select">
+            <a href="{%url 'pick_calendar:calendars' 'source' %}">
+                Select source calendar(s)
+            </a>
+        </div>
+    {% endif %}
 </div>
 
-<div id="source">
+<div id="destination">
     <div class="prompt"> 
-        Destination Calendar(s):
+        Destination Calendar:
     </div>
-    <div class="select">
-        <a href="{%url 'pick_calendar:calendars' 'destination' %}">
-            Select destination calendar(s)
-        </a>
-    </div>
+
+    {% if progress.destination %}
+        <div class="destination">
+            <ul>
+                {% for dest in progress.destination %}
+                    <li>{{ dest.summary }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div class="select">
+            <a href="{%url 'pick_calendar:calendars' 'destination' %}">
+                Select destination calendar(s)
+            </a>
+        </div>
+    {% endif %}
 </div>
 
 {% endblock %}
