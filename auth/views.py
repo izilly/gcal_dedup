@@ -10,6 +10,9 @@ from auth.models import CredentialsModel
 
 
 def get_flow(request):
+    #CLIENT_ID = ('***REMOVED***'
+                 #'.apps.googleusercontent.com')
+    #CLIENT_SECRET = '***REMOVED***'
     CLIENT_ID = ('***REMOVED***'
                  '.apps.googleusercontent.com')
     CLIENT_SECRET = '***REMOVED***'
