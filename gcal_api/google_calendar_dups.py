@@ -5,7 +5,9 @@ import sys
 import re
 import httplib2
 from apiclient.discovery import build
-
+from oauth2client import client
+import json
+import webbrowser
 
 REMOVE_ATTRS = ['id', 'htmlLink', 'iCalUID', 'gadget', 'attendees']
 
@@ -223,14 +225,36 @@ class GCalMover(object):
             print u'{}:  {}'.format(k,v).encode('utf-8')
         print '-'*15
 
-def main():
-    src_cal = 'sample_calendar_id'
-    dest_cal = 'sample_calendar_id'
-    gcm = GCalMover(calendar_id=src_cal)
-    gcm.process_calendar_dups(destination_calendar_id=dest_cal,
-                              #dry_run=True,
-                              #include_desc=True,
-                              replace_text=[(r'\\n',''), (r'\\',''), (r'\n','')])
 
-if __name__ == '__main__':
-  main()
+
+
+
+def get_creds_native():
+    SCOPE = ('https://www.googleapis.com/auth/calendar ' 
+             'https://www.googleapis.com/auth/userinfo.email ' 
+             'https://www.googleapis.com/auth/userinfo.profile')
+    redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
+    #redirect_uri = 'http://localhost'
+    flow = client.flow_from_clientsecrets('client_secret.json',
+                                          scope=SCOPE,
+                                          redirect_uri=redirect_uri)
+
+    auth_uri = flow.step1_get_authorize_url()
+    webbrowser.open(auth_uri)
+
+    auth_code = raw_input('Enter the auth code: ')
+    from pudb import set_trace; set_trace()
+    credentials = flow.step2_exchange(auth_code)
+    return credentials 
+
+
+def main():
+    creds = get_creds_native()
+    gcm = GCalMover(creds)
+    calendars = gcm.get_calendars()
+    print(calendars)
+
+
+if __name__ == "__main__":
+    main()
+
