@@ -50,6 +50,7 @@ class GCalMover(object):
                               destination_calendar_id=None,
                               replace_text=[],
                               dry_run=False):
+        # replace_text example (VEA): [(r'\\n',''), (r'\\',''), (r'\n','')]
         self.destination_calendar_id = destination_calendar_id
         self.replace_text = replace_text
         self.find_dup_groups()
