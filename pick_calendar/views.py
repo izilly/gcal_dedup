@@ -72,14 +72,14 @@ def calendars_selected(request, target):
 
 #----------------------------------------------------------------------------
 
-#TODO: redirect back to index after choosing source/dest calendars 
+#DONE: redirect back to index after choosing source/dest calendars 
 #        (rather than 'success' results page
 
 #DONE: disable destination calendar selection when source calendars not selected
 
 #TODO: remove source calendar(s) from list of destination calendar choices
 
-#TODO: add a link to reset, start over in source/destination sections 
+#DONE: add a link to reset, start over in source/destination sections 
 
 #TODO: add color to selected calendars 
 

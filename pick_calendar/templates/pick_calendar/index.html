@@ -14,12 +14,17 @@
                 {% endfor %}
             </ul>
         </div>
+    <div class="select">
+        <a href="{%url 'pick_calendar:calendars' 'source' %}">
+            Reset source calendar(s)
+        </a>
+    </div>
     {% else %}
-        <div class="select">
-            <a href="{%url 'pick_calendar:calendars' 'source' %}">
-                Select source calendar(s)
-            </a>
-        </div>
+    <div class="select">
+        <a href="{%url 'pick_calendar:calendars' 'source' %}">
+            Select source calendar(s)
+        </a>
+    </div>
     {% endif %}
 </div>
 
@@ -37,12 +42,17 @@
                     {% endfor %}
                 </ul>
             </div>
+        <div class="select">
+            <a href="{%url 'pick_calendar:calendars' 'destination' %}">
+                Reset destination calendar
+            </a>
+        </div>
         {% else %}
-            <div class="select">
-                <a href="{%url 'pick_calendar:calendars' 'destination' %}">
-                    Select destination calendar(s)
-                </a>
-            </div>
+        <div class="select">
+            <a href="{%url 'pick_calendar:calendars' 'destination' %}">
+                Select destination calendar
+            </a>
+        </div>
         {% endif %}
     </div>
 {% endif %}
