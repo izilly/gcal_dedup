@@ -6,8 +6,16 @@ import re
 import httplib2
 from apiclient.discovery import build
 from oauth2client import client
+from oauth2client.file import Storage
+from oauth2client.tools import run
 import json
 import webbrowser
+
+
+#from apiclient.discovery import build
+#from oauth2client.client import AccessTokenRefreshError
+#from oauth2client.client import OAuth2WebServerFlow
+
 
 REMOVE_ATTRS = ['id', 'htmlLink', 'iCalUID', 'gadget', 'attendees']
 
@@ -226,25 +234,26 @@ class GCalMover(object):
         print '-'*15
 
 
-
-
-
 def get_creds_native():
     SCOPE = ('https://www.googleapis.com/auth/calendar ' 
              'https://www.googleapis.com/auth/userinfo.email ' 
              'https://www.googleapis.com/auth/userinfo.profile')
     redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
-    #redirect_uri = 'http://localhost'
     flow = client.flow_from_clientsecrets('client_secret.json',
                                           scope=SCOPE,
                                           redirect_uri=redirect_uri)
-
-    auth_uri = flow.step1_get_authorize_url()
-    webbrowser.open(auth_uri)
-
-    auth_code = raw_input('Enter the auth code: ')
-    from pudb import set_trace; set_trace()
-    credentials = flow.step2_exchange(auth_code)
+    try:
+        storage = Storage('credentials.dat')
+        credentials = storage.get()
+    except:
+        credentials = None
+    if credentials is None or credentials.invalid:
+        auth_uri = flow.step1_get_authorize_url()
+        webbrowser.open(auth_uri)
+        auth_code = raw_input('Enter the auth code: ')
+        credentials = flow.step2_exchange(auth_code)
+        if storage:
+            storage.put(credentials)
     return credentials 
 
 
