@@ -23,17 +23,8 @@ class GCalMover(object):
         self.get_gcal_service()
 
     def get_gcal_service(self):
-        # Create an httplib2.Http object to handle our HTTP requests, 
-        # and authorize it using the credentials.authorize() function.
         http = httplib2.Http()
         http = self.credentials.authorize(http)
-        # The apiclient.discovery.build() function returns an instance of an 
-        # API service
-        # object can be used to make API calls. The object is constructed with
-        # methods specific to the calendar API. The arguments provided are:
-        #   name of the API ('calendar')
-        #   version of the API you are using ('v3')
-        #   authorized httplib2.Http() object that can be used for API calls
         self.service = build('calendar', 'v3', http=http)
         self.gcal_events = self.service.events()
 
@@ -56,17 +47,23 @@ class GCalMover(object):
                               source_calendar_ids,
                               destination_calendar_id,
                               replace_text=[],
-                              dry_run=False):
+                              dry_run=False,
+                              html=True,
+                              std_out=False):
         # replace_text example (VEA): [(r'\\n',''), (r'\\',''), (r'\n','')]
-        #self.destination_calendar_id = destination_calendar_id
         self.replace_text = replace_text
         self.events = {}
+        self.log = []
         for source_calendar_id in source_calendar_ids:
             self.find_dup_groups(source_calendar_id)
-        self.process_groups(destination_calendar_id, dry_run=dry_run)
+        for group in self.events.values():
+            if len(group) > 1:
+                self.process_group(group, destination_calendar_id, dry_run=dry_run, html=html, std_out=std_out)
+        from pudb import set_trace; set_trace()
+        self.log = '\n'.join(self.log)
+        return self.log
 
     def find_dup_groups(self, source_calendar_id):
-        #self.events = {}
         page_token = None
         while True:
             page = self.gcal_events.list(calendarId=source_calendar_id,
@@ -129,57 +126,137 @@ class GCalMover(object):
                 kt = re.sub(rt[0], rt[1], kt)
         return kt
 
+    def build_msg(self, results, html=True, std_out=False):
+        lines = []
+        failed_msg = 'Move FAILED: event could not be moved'
+        if html:
+            failed_msg = '{}<br>'.format(failed_msg)
+        if html:
+            lines.append('\n<hr>\n')
+        else:
+            lines.append('\n{}\n'.format('='*50))
+        if html:
+            lines.append('<ul><li>')
+        lines.extend(['', results['tests'], ''])
+        if html:
+            lines.append('</li><ul><li>')
+        lines.extend(['Keep:', ''])
+        if html:
+            lines.append('<ul><li>')
+        lines.append(self.print_event(results['keep'], html=html))
+        if html:
+            lines.append('</li></ul></li><li>')
+        lines.extend(['', 'Move:', ''])
+        if html:
+            lines.append('<ul>')
+        for i in results['remove']:
+            if html:
+                lines.append('<li>')
+            if i['moved_result'] is False:
+                lines.append(failed_msg)
+            lines.append(self.print_event(i['event'], html=html))
+            if html:
+                lines.append('</li>')
+            lines.append('')
+        if html:
+            lines.append('</ul></li></ul></ul>')
+        lines.append('')
+        joined = '\n'.join(lines)
+        if std_out:
+            print(joined)
+        return joined 
 
-    def process_groups(self, destination_calendar_id, dry_run=False):
-        for k,v in self.events.items():
-            if len(v) > 1:
-                group = self.sort_group(v)
-                keep = group[0]
-                move = group[1:]
-                # print info on the selected "original" event:
-                output_rpt_line()
-                print 'KEEP:'
-                try:
-                    keep_id = keep.get('id')
-                    keep_calendar_id = keep.get('organizer').get('email')
-                    self.print_event(keep_id, keep_calendar_id)
-                except:
-                    continue
-                # move all the other events
-                tests_passed, msg = self.run_group_tests(group)
-                print msg
-                for i in move:
-                    print '\n'
-                    try:
-                        i_id = i.get('id')
-                        i_calendar_id = i.get('organizer').get('email')
-                        self.print_event(i_id, i_calendar_id)
-                        if not dry_run and tests_passed:
-                            self.move_event(i_id, i_calendar_id,
-                                            destination_calendar_id)
-                    except:
-                        continue
+    def print_event(self, event, html=True):
+        #event_id = event.get('id')
+        #calendar_id = event.get('organizer').get('email')
+        #event = self.get_event(event_id, source_calendar_id)
+        lines = []
+        lines.append(event.get('summary').encode('utf-8'))
+        lines.append(u'{} - {}'.format(event.get('start').get('dateTime'),
+                               event.get('end').get('dateTime')))
+        for attr in ['description']:
+            if event.get(attr): 
+                lines.append(u''.join(event.get(attr)).encode('utf-8'))
+        for attr in ['location', 'recurrence', 'created', 'updated']:
+            if event.get(attr):
+                lines.append(u'{}: {}'.format(attr, event.get(attr)).encode('utf-8'))
+        if html:
+            sep = '<br>\n'
+        else:
+            sep = '\n'
+        return sep.join(lines)
+        #return lines
+        #print('\n'.join(lines))
+        #print '-'*15
+        #for k,v in event.items():
+            #print u'{}:  {}'.format(k,v).encode('utf-8')
+        #print '-'*15
 
-    #def process_groups(self, source_calendar_id, destination_calendar_id, dry_run=False):
-        #for k,v in self.events.items():
-            #if len(v) > 1:
-                #group = self.sort_group(v)
-                #ids = [i['id'] for i in group]
-                ## print info on the selected "original" event:
-                #output_rpt_line()
-                #print 'KEEP:'
-                #self.print_event(ids[0], source_calendar_id)
-                ## move all the other events
-                #tests_passed, msg = self.run_group_tests(group)
-                #print msg
-                #for i in ids[1:]:
-                    #print '\n'
-                    #self.print_event(i, source_calendar_id)
-                    #if not dry_run and tests_passed:
-                        #self.move_event(i, source_calendar_id,
-                                        #destination_calendar_id)
+    def process_group(self, group, destination_calendar_id, dry_run=False, html=True, std_out=False):
+        group = self.sort_group(group)
+        tests_passed, tests_msg = self.run_group_tests(group)
+        results = {'keep': group[0],
+                   'tests': tests_msg,
+                   'remove': []}
+        for i in group[1:]:
+            r = {'event': i,
+                 'moved_result': None}
+            if not dry_run and tests_passed:
+                moved = self.move_event(i, destination_calendar_id)
+                r['moved_result'] = moved
+            results['remove'].append(r)
+        #from pudb import set_trace; set_trace()
+        log = self.build_msg(results, html=html, std_out=std_out)
+        self.log.append(log)
+        #print('\n'.join(rr))
+
+        #group = self.sort_group(group)
+        #msg = {'keep': [], 'remove': [], 'tests_msg': ''}
+        ##msg['keep'].extend(self.print_event(group[0]))
+        #msg['keep'] = '\n'.join(self.print_event(group[0]))
+        #tests_passed, tests_msg = self.run_group_tests(group)
+        #msg['tests_msg'] = tests_msg
+        #for i in group[1:]:
+            #m = {'event'}
+            #m['event'] = self.print_event(i)
+            #msg['remove']['events'].append(self.print_event(i))
+            #if not dry_run and tests_passed:
+                #result = self.move_event(i_id, i_calendar_id,
+                                         #destination_calendar_id)
+
+
+        #keep = group[0]
+        #move = group[1:]
+
+
+
+
+        #print('Keep')
+        #self.print_event(keep)
+        ##try:
+            ##keep_id = keep.get('id')
+            ##keep_calendar_id = keep.get('organizer').get('email')
+            ##msg['keep'].extend(self.print_event(keep_id, keep_calendar_id))
+        ##except:
+            ##return False
+        ## move all the other events
+        #tests_passed, msg = self.run_group_tests(group)
+        #print msg
+        #for i in move:
+            #print '\n'
+            #try:
+                #i_id = i.get('id')
+                #i_calendar_id = i.get('organizer').get('email')
+                #self.print_event(i_id, i_calendar_id)
+                #if not dry_run and tests_passed:
+                    #self.move_event(i_id, i_calendar_id,
+                                    #destination_calendar_id)
+            #except:
+                #continue
 
     def sort_group(self, group):
+        '''Sort the events in a group to determine which event to keep.
+        '''
         events = []
         #if len(group) > 1 and self.is_same_sized(group):
         if len(group) > 1:
@@ -190,6 +267,15 @@ class GCalMover(object):
         return events
 
     def get_text_len(self, event):
+        '''Calculate the number of characters of certain event attributes.
+
+        This is only used for sorting groups to determine which event should
+        be kept.  In some cases, the duplicate events are caused by faulty 
+        sync software which, in addition to duplicating events, also adds
+        some junk characters to the duplicates.  In those cases, we use 
+        this method to find the event with the smaller number of characters
+        and consider it to be the "original" event.  
+        '''
         text_len = 0
         summary = event.get('summary')
         if summary:
@@ -203,6 +289,11 @@ class GCalMover(object):
         return text_len
 
     def is_same_sized(self, group, threshold=.85):
+        '''Test to compare the size (number of characters) of grouped events.
+
+        If the sizes of events in a group vary by more than a given threshold,
+        we assume the events are not actually duplicates.
+        '''
         group = [g.copy() for g in group]
         self.remove_group_attrs(group)
         sizes = sorted([len(str(i)) for i in group])
@@ -212,12 +303,27 @@ class GCalMover(object):
             return False
 
     def remove_group_attrs(self, group, attrs=REMOVE_ATTRS):
+        '''Removes certain attributes from a copied event group.
+
+        These are attributes which can be expected to differ among a group 
+        of duplicate events.  The event id, for instance, would never be 
+        the same.  
+        '''
         for g in group:
             for a in attrs:
                 if g.get(a):
                     g.pop(a)
 
     def has_all_attrs(self, group):
+        '''Test to compare the number of attributes of grouped events.
+
+        The first event in a group (the event to be kept), must have at least
+        as many attributes as all the other events in the group.  This test 
+        simply ensures that the duplicate/to-be-removed events do not have more
+        attributes than the kept event. There is a chance for false positive 
+        in cases where the kept event has sufficient number, but different 
+        attributes than the removed events.  
+        '''
         lens = [len(g) for g in group]
         keep_len = lens[0]
         if keep_len >= sorted(lens)[-1]:
@@ -226,41 +332,32 @@ class GCalMover(object):
             return False
 
     def run_group_tests(self, group):
+        '''Test the uniqueness of grouped events.
+        '''
         if not self.is_same_sized(group):
-            msg = '\n\nNOT MOVED (due to size differences):'
+            msg = 'Group skipped (due to size differences):'
             return (False, msg)
         elif not self.has_all_attrs(group):
-            msg = '\n\nNOT MOVED (due to missing attributes):'
+            msg = 'Group skipped (due to missing attributes):'
             return (False, msg)
         else:
-            return (True, '\n\nMOVE:')
+            return (True, 'Group (processed):')
 
-    def move_event(self, event_id, source_calendar_id, destination_calendar_id):
+    def move_event(self, event, destination_calendar_id):
         try:
-            moved = self.gcal_events.move(calendarId=source_calendar_id, 
+            event_id = event.get('id')
+            calendar_id = event.get('organizer').get('email')
+            moved = self.gcal_events.move(calendarId=calendar_id, 
                                         eventId=event_id,
                                         destination=destination_calendar_id).execute()
+            return True
         except:
-            moved = None
-            print 'MOVE_ERROR: event could not be moved (event id: {})'.format(event_id)
-        return moved
+            return False
 
     def get_event(self, event_id, source_calendar_id):
         event = self.gcal_events.get(calendarId=source_calendar_id, 
                                       eventId=event_id).execute()
         return event
-
-    def print_event(self, event_id, source_calendar_id):
-        event = self.get_event(event_id, source_calendar_id)
-        print event.get('summary').encode('utf-8')
-        print u'{} - {}'.format(event.get('start').get('dateTime'),
-                               event.get('end').get('dateTime'))
-        for attr in ['recurrence', 'description', 'location']:
-            if event.get(attr): print u''.join(event.get(attr)).encode('utf-8')
-        print '-'*15
-        for k,v in event.items():
-            print u'{}:  {}'.format(k,v).encode('utf-8')
-        print '-'*15
 
 
 class CLI(object):
@@ -276,7 +373,9 @@ class CLI(object):
         self.gcm.process_calendar_dups(self.source_calendar_ids, 
                                        self.destination_calendar_id,
                                        replace_text=[(r'\\n',''), (r'\\',''), (r'\n','')],
-                                       dry_run=False)
+                                       dry_run=False,
+                                       html=False,
+                                       std_out=True)
 
     def get_creds_native(self):
         SCOPE = ('https://www.googleapis.com/auth/calendar ' 
