@@ -35,6 +35,7 @@ class GCalMover(object):
         #   version of the API you are using ('v3')
         #   authorized httplib2.Http() object that can be used for API calls
         self.service = build('calendar', 'v3', http=http)
+        self.gcal_events = self.service.events()
 
     def get_calendars(self):
         calendars = []
@@ -52,20 +53,23 @@ class GCalMover(object):
         return calendars
 
     def process_calendar_dups(self, 
-                              destination_calendar_id=None,
+                              source_calendar_ids,
+                              destination_calendar_id,
                               replace_text=[],
                               dry_run=False):
         # replace_text example (VEA): [(r'\\n',''), (r'\\',''), (r'\n','')]
-        self.destination_calendar_id = destination_calendar_id
+        #self.destination_calendar_id = destination_calendar_id
         self.replace_text = replace_text
-        self.find_dup_groups()
-        self.process_groups(dry_run=dry_run)
-
-    def find_dup_groups(self):
         self.events = {}
+        for source_calendar_id in source_calendar_ids:
+            self.find_dup_groups(source_calendar_id)
+        self.process_groups(destination_calendar_id, dry_run=dry_run)
+
+    def find_dup_groups(self, source_calendar_id):
+        #self.events = {}
         page_token = None
         while True:
-            page = self.gcal_events.list(calendarId=self.source_calendar_id,
+            page = self.gcal_events.list(calendarId=source_calendar_id,
                                          pageToken=page_token).execute()
             items = page.get('items')
             if items:
@@ -126,24 +130,54 @@ class GCalMover(object):
         return kt
 
 
-    def process_groups(self, dry_run=False):
+    def process_groups(self, destination_calendar_id, dry_run=False):
         for k,v in self.events.items():
             if len(v) > 1:
                 group = self.sort_group(v)
-                ids = [i['id'] for i in group]
+                keep = group[0]
+                move = group[1:]
                 # print info on the selected "original" event:
                 output_rpt_line()
                 print 'KEEP:'
-                self.print_event(ids[0], self.source_calendar_id)
+                try:
+                    keep_id = keep.get('id')
+                    keep_calendar_id = keep.get('organizer').get('email')
+                    self.print_event(keep_id, keep_calendar_id)
+                except:
+                    continue
                 # move all the other events
                 tests_passed, msg = self.run_group_tests(group)
                 print msg
-                for i in ids[1:]:
+                for i in move:
                     print '\n'
-                    self.print_event(i, self.source_calendar_id)
-                    if not dry_run and tests_passed:
-                        self.move_event(i, self.source_calendar_id,
-                                        self.destination_calendar_id)
+                    try:
+                        i_id = i.get('id')
+                        i_calendar_id = i.get('organizer').get('email')
+                        self.print_event(i_id, i_calendar_id)
+                        if not dry_run and tests_passed:
+                            self.move_event(i_id, i_calendar_id,
+                                            destination_calendar_id)
+                    except:
+                        continue
+
+    #def process_groups(self, source_calendar_id, destination_calendar_id, dry_run=False):
+        #for k,v in self.events.items():
+            #if len(v) > 1:
+                #group = self.sort_group(v)
+                #ids = [i['id'] for i in group]
+                ## print info on the selected "original" event:
+                #output_rpt_line()
+                #print 'KEEP:'
+                #self.print_event(ids[0], source_calendar_id)
+                ## move all the other events
+                #tests_passed, msg = self.run_group_tests(group)
+                #print msg
+                #for i in ids[1:]:
+                    #print '\n'
+                    #self.print_event(i, source_calendar_id)
+                    #if not dry_run and tests_passed:
+                        #self.move_event(i, source_calendar_id,
+                                        #destination_calendar_id)
 
     def sort_group(self, group):
         events = []
@@ -234,9 +268,15 @@ class CLI(object):
     def run(self):
         self.get_creds_native()
         self.gcm = GCalMover(self.credentials)
+        #from pudb import set_trace; set_trace()
         self.calendars = self.gcm.get_calendars()
         self.calendar_names = [i.get('summary') for i in self.calendars]
         self.prompt_calendars()
+        #from pudb import set_trace; set_trace()
+        self.gcm.process_calendar_dups(self.source_calendar_ids, 
+                                       self.destination_calendar_id,
+                                       replace_text=[(r'\\n',''), (r'\\',''), (r'\n','')],
+                                       dry_run=False)
 
     def get_creds_native(self):
         SCOPE = ('https://www.googleapis.com/auth/calendar ' 
@@ -265,14 +305,30 @@ class CLI(object):
         src = cli_prompt(self.calendar_names, multiple=True, 
                          title='Select Source Calendars')
         self.source_calendars = [self.calendars[i] for i in src]
+        self.source_calendar_ids = [i.get('id') for i in self.source_calendars]
+        self.source_calendar_names = [i.get('summary') for i in 
+                                      self.source_calendars]
         dest_choices = [i for i in self.calendars 
                         if i not in self.source_calendars]
         dest_names = [i.get('summary') for i in dest_choices]
         dest = cli_prompt(dest_names, multiple=False, 
                          title='Select Destination Calendar')
-        self.destination_calendars = [dest_choices[i] for i in dest]
+        self.destination_calendar = dest_choices[dest[0]]
+        self.destination_calendar_id = self.destination_calendar.get('id')
+        self.destination_calendar_name = self.destination_calendar.get('summary')
 
-        from pudb import set_trace; set_trace()
+        print('\n')
+        print('Source Calendar(s):\n{}'.format(
+                            '\n'.join(self.source_calendar_names)))
+        print('')
+        print('Destination Calendar:\n{}'.format(self.destination_calendar_name))
+        print('\n')
+
+        cont = raw_input('Continue? [y/n]: ')
+        if cont not in ['y', 'Y']:
+            raise SystemExit
+
+        #from pudb import set_trace; set_trace()
 
 
 def cli_prompt(_list, multiple=False, title=None, question='Make a selection'):
