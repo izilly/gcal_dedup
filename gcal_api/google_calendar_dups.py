@@ -18,17 +18,21 @@ def output_rpt_line():
     print '\n\n{0}\n{0}\n\n'.format('='*78)
 
 class GCalMover(object):
+    """A class for moving/deduplifying google calendar events."""
+
     def __init__(self, credentials):
         self.credentials = credentials
         self.get_gcal_service()
 
     def get_gcal_service(self):
+        """Get a google calendar api service."""
         http = httplib2.Http()
         http = self.credentials.authorize(http)
         self.service = build('calendar', 'v3', http=http)
         self.gcal_events = self.service.events()
 
     def get_calendars(self):
+        """Get a list of the users' google calendars."""
         calendars = []
         page_token = None
         while True:
@@ -50,6 +54,21 @@ class GCalMover(object):
                               dry_run=False,
                               html=True,
                               std_out=False):
+        """Deduplify one or more google calendars.
+
+        First, the events of one or more source calendars are scanned and 
+        placed into groups of similar events.  Groups with more than one 
+        event are considered to be duplicates.  
+
+        Then the duplicate groups are tested to weed out false positives and
+        sorted in an attempt to keep the "correct" event, and to removing 
+        any unique data.
+
+        Then the duplicate events are moved to another calendar.  No events
+        are ever deleted.  To completely delete events, select a new/blank
+        destination calendar and then use the website to delete the 
+        destination calendar after completion. 
+        """
         # replace_text example (VEA): [(r'\\n',''), (r'\\',''), (r'\n','')]
         self.source_calendars = source_calendars
         self.destination_calendar = destination_calendar
@@ -71,6 +90,13 @@ class GCalMover(object):
         return self.log
 
     def find_dup_groups(self, source_calendar_id):
+        """Scan a source calendar and place the events into groups.
+
+        The groups are comprised of events with identical sets of attributes
+        (start, end, recurrence, summary, description, location).  Groups
+        containing more than one event are considered to be duplicated
+        events, which are then subjected to further tests.  
+        """
         page_token = None
         while True:
             page = self.gcal_events.list(calendarId=source_calendar_id,
@@ -100,8 +126,10 @@ class GCalMover(object):
                     description = self.get_key_text('description', i)
                     location = self.get_key_text('location', i)
 
-                    # build a tuple from 5 attributes with which we test uniqueness
-                    item_key = (start, end, recurrence, summary, description, location)
+                    # build a tuple from 5 attributes with which we test 
+                    # uniqueness
+                    item_key = (start, end, recurrence, summary, 
+                                description, location)
                     
                     # the idea here is that the item_key is a boiled-down version
                     # of the event, which will match exactly among duplicated 
@@ -133,73 +161,8 @@ class GCalMover(object):
                 kt = re.sub(rt[0], rt[1], kt)
         return kt
 
-    def build_msg(self, results, html=True, std_out=False):
-        lines = []
-        failed_msg = 'Move FAILED: event could not be moved'
-        if html:
-            failed_msg = '{}<br>'.format(failed_msg)
-        if html:
-            lines.append('\n<hr>\n')
-        else:
-            lines.append('\n{}\n'.format('='*50))
-        if html:
-            lines.append('<ul><li>')
-        lines.extend(['', results['tests'], ''])
-        if html:
-            lines.append('</li><ul><li>')
-        lines.extend(['Keep:', ''])
-        if html:
-            lines.append('<ul><li>')
-        lines.append(self.print_event(results['keep'], html=html))
-        if html:
-            lines.append('</li></ul></li><li>')
-        lines.extend(['', 'Move:', ''])
-        if html:
-            lines.append('<ul>')
-        for i in results['remove']:
-            if html:
-                lines.append('<li>')
-            if i['moved_result'] is False:
-                lines.append(failed_msg)
-            lines.append(self.print_event(i['event'], html=html))
-            if html:
-                lines.append('</li>')
-            lines.append('')
-        if html:
-            lines.append('</ul></li></ul></ul>')
-        lines.append('')
-        joined = '\n'.join(lines)
-        if std_out:
-            print(joined)
-        return joined 
-
-    def print_event(self, event, html=True):
-        #event_id = event.get('id')
-        #calendar_id = event.get('organizer').get('email')
-        #event = self.get_event(event_id, source_calendar_id)
-        lines = []
-        lines.append(event.get('summary').encode('utf-8'))
-        lines.append(u'{} - {}'.format(event.get('start').get('dateTime'),
-                               event.get('end').get('dateTime')))
-        for attr in ['description']:
-            if event.get(attr): 
-                lines.append(u''.join(event.get(attr)).encode('utf-8'))
-        for attr in ['location', 'recurrence', 'created', 'updated']:
-            if event.get(attr):
-                lines.append(u'{}: {}'.format(attr, event.get(attr)).encode('utf-8'))
-        if html:
-            sep = '<br>\n'
-        else:
-            sep = '\n'
-        return sep.join(lines)
-        #return lines
-        #print('\n'.join(lines))
-        #print '-'*15
-        #for k,v in event.items():
-            #print u'{}:  {}'.format(k,v).encode('utf-8')
-        #print '-'*15
-
     def process_group(self, group, destination_calendar_id, dry_run=False, html=True, std_out=False):
+        """Sort groups, then move duplicate events to destination calendar."""
         group = self.sort_group(group)
         tests_passed, tests_msg = self.run_group_tests(group)
         results = {'keep': group[0],
@@ -262,8 +225,7 @@ class GCalMover(object):
                 #continue
 
     def sort_group(self, group):
-        '''Sort the events in a group to determine which event to keep.
-        '''
+        """Sort the events in a group to determine which event to keep."""
         events = []
         #if len(group) > 1 and self.is_same_sized(group):
         if len(group) > 1:
@@ -274,7 +236,7 @@ class GCalMover(object):
         return events
 
     def get_text_len(self, event):
-        '''Calculate the number of characters of certain event attributes.
+        """Calculate the number of characters of certain event attributes.
 
         This is only used for sorting groups to determine which event should
         be kept.  In some cases, the duplicate events are caused by faulty 
@@ -282,7 +244,7 @@ class GCalMover(object):
         some junk characters to the duplicates.  In those cases, we use 
         this method to find the event with the smaller number of characters
         and consider it to be the "original" event.  
-        '''
+        """
         text_len = 0
         summary = event.get('summary')
         if summary:
@@ -296,11 +258,11 @@ class GCalMover(object):
         return text_len
 
     def is_same_sized(self, group, threshold=.85):
-        '''Test to compare the size (number of characters) of grouped events.
+        """Test to compare the size (number of characters) of grouped events.
 
         If the sizes of events in a group vary by more than a given threshold,
         we assume the events are not actually duplicates.
-        '''
+        """
         group = [g.copy() for g in group]
         self.remove_group_attrs(group)
         sizes = sorted([len(str(i)) for i in group])
@@ -310,19 +272,19 @@ class GCalMover(object):
             return False
 
     def remove_group_attrs(self, group, attrs=REMOVE_ATTRS):
-        '''Removes certain attributes from a copied event group.
+        """Removes certain attributes from a copied event group.
 
         These are attributes which can be expected to differ among a group 
         of duplicate events.  The event id, for instance, would never be 
         the same.  
-        '''
+        """
         for g in group:
             for a in attrs:
                 if g.get(a):
                     g.pop(a)
 
     def has_all_attrs(self, group):
-        '''Test to compare the number of attributes of grouped events.
+        """Test to compare the number of attributes of grouped events.
 
         The first event in a group (the event to be kept), must have at least
         as many attributes as all the other events in the group.  This test 
@@ -330,7 +292,7 @@ class GCalMover(object):
         attributes than the kept event. There is a chance for false positive 
         in cases where the kept event has sufficient number, but different 
         attributes than the removed events.  
-        '''
+        """
         lens = [len(g) for g in group]
         keep_len = lens[0]
         if keep_len >= sorted(lens)[-1]:
@@ -339,8 +301,7 @@ class GCalMover(object):
             return False
 
     def run_group_tests(self, group):
-        '''Test the uniqueness of grouped events.
-        '''
+        """Test the uniqueness of grouped events."""
         if not self.is_same_sized(group):
             msg = 'Group skipped (due to size differences):'
             return (False, msg)
@@ -351,6 +312,7 @@ class GCalMover(object):
             return (True, 'Group (processed):')
 
     def move_event(self, event, destination_calendar_id):
+        """Move an event to the destination calendar."""
         try:
             event_id = event.get('id')
             calendar_id = event.get('organizer').get('email')
@@ -361,15 +323,81 @@ class GCalMover(object):
         except:
             return False
 
-    def get_event(self, event_id, source_calendar_id):
-        event = self.gcal_events.get(calendarId=source_calendar_id, 
-                                      eventId=event_id).execute()
-        return event
+    def print_event(self, event, html=True):
+        """Build a list of strings describing an event."""
+        #event_id = event.get('id')
+        #calendar_id = event.get('organizer').get('email')
+        #event = self.get_event(event_id, source_calendar_id)
+        lines = []
+        lines.append(event.get('summary').encode('utf-8'))
+        lines.append(u'{} - {}'.format(event.get('start').get('dateTime'),
+                               event.get('end').get('dateTime')))
+        for attr in ['description']:
+            if event.get(attr): 
+                lines.append(u''.join(event.get(attr)).encode('utf-8'))
+        for attr in ['location', 'recurrence', 'created', 'updated']:
+            if event.get(attr):
+                lines.append(u'{}: {}'.format(attr, event.get(attr)).encode('utf-8'))
+        if html:
+            sep = '<br>\n'
+        else:
+            sep = '\n'
+        return sep.join(lines)
+        #return lines
+        #print('\n'.join(lines))
+        #print '-'*15
+        #for k,v in event.items():
+            #print u'{}:  {}'.format(k,v).encode('utf-8')
+        #print '-'*15
+
+    def build_msg(self, results, html=True, std_out=False):
+        """Build text describing the events of a group."""
+        lines = []
+        failed_msg = 'Move FAILED: event could not be moved'
+        if html:
+            failed_msg = '{}<br>'.format(failed_msg)
+        if html:
+            lines.append('\n<hr>\n')
+        else:
+            lines.append('\n{}\n'.format('='*50))
+        if html:
+            lines.append('<ul><li>')
+        lines.extend(['', results['tests'], ''])
+        if html:
+            lines.append('</li><ul><li>')
+        lines.extend(['Keep:', ''])
+        if html:
+            lines.append('<ul><li>')
+        lines.append(self.print_event(results['keep'], html=html))
+        if html:
+            lines.append('</li></ul></li><li>')
+        lines.extend(['', 'Move:', ''])
+        if html:
+            lines.append('<ul>')
+        for i in results['remove']:
+            if html:
+                lines.append('<li>')
+            if i['moved_result'] is False:
+                lines.append(failed_msg)
+            lines.append(self.print_event(i['event'], html=html))
+            if html:
+                lines.append('</li>')
+            lines.append('')
+        if html:
+            lines.append('</ul></li></ul></ul>')
+        lines.append('')
+        joined = '\n'.join(lines)
+        if std_out:
+            print(joined)
+        return joined 
+
 
 
 class CLI(object):
+    """A class to interface with GCalMover() from the command-line."""
 
     def run(self):
+        """Deduplify google calendar(s) from the command-line."""
         self.get_creds_native()
         self.gcm = GCalMover(self.credentials)
         #from pudb import set_trace; set_trace()
@@ -388,6 +416,7 @@ class CLI(object):
                                        std_out=True)
 
     def get_creds_native(self):
+        """Get oauth2 credentials authorizing access to google calendar."""
         SCOPE = ('https://www.googleapis.com/auth/calendar ' 
                 'https://www.googleapis.com/auth/userinfo.email ' 
                 'https://www.googleapis.com/auth/userinfo.profile')
@@ -411,6 +440,7 @@ class CLI(object):
         return credentials 
 
     def prompt_calendars(self):
+        """Prompt user to choose source/destination calendars."""
         src = cli_prompt(self.calendar_names, multiple=True, 
                          title='Select Source Calendars')
         self.source_calendars = [self.calendars[i] for i in src]
@@ -441,6 +471,7 @@ class CLI(object):
 
 
 def cli_prompt(_list, multiple=False, title=None, question='Make a selection'):
+    """Present a list of choices and read the user's answer."""
     print('')
     if title:
         print('{}\n'.format(title))
