@@ -44,21 +44,28 @@ class GCalMover(object):
         return calendars
 
     def process_calendar_dups(self, 
-                              source_calendar_ids,
-                              destination_calendar_id,
+                              source_calendars,
+                              destination_calendar,
                               replace_text=[],
                               dry_run=False,
                               html=True,
                               std_out=False):
         # replace_text example (VEA): [(r'\\n',''), (r'\\',''), (r'\n','')]
+        self.source_calendars = source_calendars
+        self.destination_calendar = destination_calendar
+        self.destination_calendar_id = destination_calendar.get('id')
         self.replace_text = replace_text
         self.events = {}
         self.log = []
-        for source_calendar_id in source_calendar_ids:
-            self.find_dup_groups(source_calendar_id)
+        for source_calendar in source_calendars:
+            self.find_dup_groups(source_calendar.get('id'))
         for group in self.events.values():
             if len(group) > 1:
-                self.process_group(group, destination_calendar_id, dry_run=dry_run, html=html, std_out=std_out)
+                self.process_group(group, 
+                                   self.destination_calendar_id, 
+                                   dry_run=dry_run, 
+                                   html=html, 
+                                   std_out=std_out)
         from pudb import set_trace; set_trace()
         self.log = '\n'.join(self.log)
         return self.log
@@ -370,10 +377,13 @@ class CLI(object):
         self.calendar_names = [i.get('summary') for i in self.calendars]
         self.prompt_calendars()
         #from pudb import set_trace; set_trace()
-        self.gcm.process_calendar_dups(self.source_calendar_ids, 
-                                       self.destination_calendar_id,
-                                       replace_text=[(r'\\n',''), (r'\\',''), (r'\n','')],
-                                       dry_run=False,
+        self.gcm.process_calendar_dups(self.source_calendars, 
+                                       self.destination_calendar,
+                                       replace_text=[(r'\\n',''), 
+                                                     (r'\\',''), 
+                                                     (r'\n','')],
+                                       #dry_run=False,
+                                       dry_run=True,
                                        html=False,
                                        std_out=True)
 
