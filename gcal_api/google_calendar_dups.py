@@ -12,11 +12,6 @@ import json
 import webbrowser
 
 
-#from apiclient.discovery import build
-#from oauth2client.client import AccessTokenRefreshError
-#from oauth2client.client import OAuth2WebServerFlow
-
-
 REMOVE_ATTRS = ['id', 'htmlLink', 'iCalUID', 'gadget', 'attendees']
 
 def output_rpt_line():
@@ -234,34 +229,71 @@ class GCalMover(object):
         print '-'*15
 
 
-def get_creds_native():
-    SCOPE = ('https://www.googleapis.com/auth/calendar ' 
-             'https://www.googleapis.com/auth/userinfo.email ' 
-             'https://www.googleapis.com/auth/userinfo.profile')
-    redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
-    flow = client.flow_from_clientsecrets('client_secret.json',
-                                          scope=SCOPE,
-                                          redirect_uri=redirect_uri)
-    try:
-        storage = Storage('credentials.dat')
-        credentials = storage.get()
-    except:
-        credentials = None
-    if credentials is None or credentials.invalid:
-        auth_uri = flow.step1_get_authorize_url()
-        webbrowser.open(auth_uri)
-        auth_code = raw_input('Enter the auth code: ')
-        credentials = flow.step2_exchange(auth_code)
-        if storage:
-            storage.put(credentials)
-    return credentials 
+class CLI(object):
 
+    def run(self):
+        self.get_creds_native()
+        self.gcm = GCalMover(self.credentials)
+        self.calendars = self.gcm.get_calendars()
+        self.calendar_names = [i.get('summary') for i in self.calendars]
+        self.prompt_calendars()
+
+    def get_creds_native(self):
+        SCOPE = ('https://www.googleapis.com/auth/calendar ' 
+                'https://www.googleapis.com/auth/userinfo.email ' 
+                'https://www.googleapis.com/auth/userinfo.profile')
+        redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
+        flow = client.flow_from_clientsecrets('client_secret.json',
+                                            scope=SCOPE,
+                                            redirect_uri=redirect_uri)
+        try:
+            storage = Storage('credentials.dat')
+            credentials = storage.get()
+        except:
+            credentials = None
+        if credentials is None or credentials.invalid:
+            auth_uri = flow.step1_get_authorize_url()
+            webbrowser.open(auth_uri)
+            auth_code = raw_input('Enter the auth code: ')
+            credentials = flow.step2_exchange(auth_code)
+            if storage:
+                storage.put(credentials)
+        self.credentials = credentials
+        return credentials 
+
+    def prompt_calendars(self):
+        src = cli_prompt(self.calendar_names, multiple=True, 
+                         title='Select Source Calendars')
+        self.source_calendars = [self.calendars[i] for i in src]
+        dest_choices = [i for i in self.calendars 
+                        if i not in self.source_calendars]
+        dest_names = [i.get('summary') for i in dest_choices]
+        dest = cli_prompt(dest_names, multiple=False, 
+                         title='Select Destination Calendar')
+        self.destination_calendars = [dest_choices[i] for i in dest]
+
+        from pudb import set_trace; set_trace()
+
+
+def cli_prompt(_list, multiple=False, title=None, question='Make a selection'):
+    print('')
+    if title:
+        print('{}\n'.format(title))
+    for n,i in enumerate(_list):
+        print('({}) {}'.format(n, i))
+    print('')
+    if multiple:
+        question = '{} (space separated)'.format(question)
+    question = '{}: '.format(question)
+    choices = raw_input(question)
+    #from pudb import set_trace; set_trace()
+    choices = choices.split(' ')
+    choices = [int(i) for i in choices]
+    return choices
 
 def main():
-    creds = get_creds_native()
-    gcm = GCalMover(creds)
-    calendars = gcm.get_calendars()
-    print(calendars)
+    cli = CLI()
+    cli.run()
 
 
 if __name__ == "__main__":
