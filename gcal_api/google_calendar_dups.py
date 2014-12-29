@@ -74,17 +74,16 @@ class GCalMover(object):
         self.destination_calendar = destination_calendar
         self.destination_calendar_id = destination_calendar.get('id')
         self.replace_text = replace_text
+        self.dry_run = dry_run
+        self.html = html
+        self.std_out = std_out
         self.events = {}
         self.log = []
         for source_calendar in source_calendars:
             self._group_events(source_calendar.get('id'))
         for group in self.events.values():
             if len(group) > 1:
-                self._process_group(group, 
-                                   self.destination_calendar_id, 
-                                   dry_run=dry_run, 
-                                   html=html, 
-                                   std_out=std_out)
+                self._process_group(group) 
         #from pudb import set_trace; set_trace()
         self.log = '\n'.join(self.log)
         return self.log
@@ -161,12 +160,9 @@ class GCalMover(object):
                 kt = re.sub(rt[0], rt[1], kt)
         return kt
 
+    # attr
     def _process_group(self, 
-                      group, 
-                      destination_calendar_id, 
-                      dry_run=False, 
-                      html=True, 
-                      std_out=False):
+                       group):
         """Sort groups, then move duplicate events to destination calendar."""
         group = self._sort_group(group)
         tests_passed, tests_msg = self._run_group_tests(group)
@@ -176,12 +172,12 @@ class GCalMover(object):
         for i in group[1:]:
             r = {'event': i,
                  'moved_result': None}
-            if not dry_run and tests_passed:
-                moved = self.move_event(i, destination_calendar_id)
+            if not self.dry_run and tests_passed:
+                moved = self.move_event(i, self.destination_calendar_id)
                 r['moved_result'] = moved
             results['remove'].append(r)
         #from pudb import set_trace; set_trace()
-        log = self._get_group_log(results, html=html, std_out=std_out)
+        log = self._get_group_log(results)
         self.log.append(log)
 
     def _sort_group(self, group):
@@ -269,6 +265,7 @@ class GCalMover(object):
         else:
             return (True, 'Group (processed):')
 
+    # attr
     def move_event(self, event, destination_calendar_id):
         """Move an event to the destination calendar."""
         try:
@@ -281,7 +278,8 @@ class GCalMover(object):
         except:
             return False
 
-    def _get_event_log(self, event, html=True):
+    # attr
+    def _get_event_log(self, event):
         """Build a list of strings describing an event."""
         lines = []
         lines.append(event.get('summary').encode('utf-8'))
@@ -293,50 +291,51 @@ class GCalMover(object):
         for attr in ['location', 'recurrence', 'created', 'updated']:
             if event.get(attr):
                 lines.append(u'{}: {}'.format(attr, event.get(attr)).encode('utf-8'))
-        if html:
+        if self.html:
             sep = '<br>\n'
         else:
             sep = '\n'
         return sep.join(lines)
 
-    def _get_group_log(self, results, html=True, std_out=False):
+    # attr
+    def _get_group_log(self, results):
         """Build text describing the events of a group."""
         lines = []
         failed_msg = 'Move FAILED: event could not be moved'
-        if html:
+        if self.html:
             failed_msg = '{}<br>'.format(failed_msg)
-        if html:
+        if self.html:
             lines.append('\n<hr>\n')
         else:
             lines.append('\n{}\n'.format('='*50))
-        if html:
+        if self.html:
             lines.append('<ul><li>')
         lines.extend(['', results['tests'], ''])
-        if html:
+        if self.html:
             lines.append('</li><ul><li>')
         lines.extend(['Keep:', ''])
-        if html:
+        if self.html:
             lines.append('<ul><li>')
-        lines.append(self._get_event_log(results['keep'], html=html))
-        if html:
+        lines.append(self._get_event_log(results['keep']))
+        if self.html:
             lines.append('</li></ul></li><li>')
         lines.extend(['', 'Move:', ''])
-        if html:
+        if self.html:
             lines.append('<ul>')
         for i in results['remove']:
-            if html:
+            if self.html:
                 lines.append('<li>')
             if i['moved_result'] is False:
                 lines.append(failed_msg)
-            lines.append(self._get_event_log(i['event'], html=html))
-            if html:
+            lines.append(self._get_event_log(i['event']))
+            if self.html:
                 lines.append('</li>')
             lines.append('')
-        if html:
+        if self.html:
             lines.append('</ul></li></ul></ul>')
         lines.append('')
         joined = '\n'.join(lines)
-        if std_out:
+        if self.std_out:
             print(joined)
         return joined 
 
@@ -356,9 +355,9 @@ class CLI(object):
         #from pudb import set_trace; set_trace()
         self.gcm.deduplify(self.source_calendars, 
                                        self.destination_calendar,
-                                       replace_text=[(r'\\n',''), 
-                                                     (r'\\',''), 
-                                                     (r'\n','')],
+                                       #replace_text=[(r'\\n',''), 
+                                                     #(r'\\',''), 
+                                                     #(r'\n','')],
                                        #dry_run=False,
                                        dry_run=True,
                                        html=False,
@@ -432,7 +431,7 @@ def cli_prompt(_list, multiple=False, title=None, question='Make a selection'):
     question = '{}: '.format(question)
     choices = raw_input(question)
     #from pudb import set_trace; set_trace()
-    choices = choices.split(' ')
+    choices = choices.strip().split(' ')
     choices = [int(i) for i in choices]
     return choices
 
