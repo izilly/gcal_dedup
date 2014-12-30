@@ -14,9 +14,13 @@ def index(request):
     context = {'progress': progress,}
     return render(request, 'pick_calendar/index.html', context)
 
-def get_progress(request):
+def reset(request):
+    progress = get_progress(request, reset=True)
+    return redirect('index')
+
+def get_progress(request, reset=False):
     progress = request.session.get('progress')
-    if not progress:
+    if not progress or reset:
         progress = {'source': [],
                     'destination': [],
                     'completed': None,
@@ -68,6 +72,23 @@ def calendars_selected(request, target):
     #return render(request, 
                   #'pick_calendar/calendars_selected.html', 
                   #{'calendar_list': calendars_selected})
+
+def deduplify(request):
+    #from pudb import set_trace; set_trace()
+    progress = get_progress(request)
+    source = progress.get('source')
+    destination = progress.get('destination')[0]
+    user = request.user 
+    storage = Storage(CredentialsModel, 'id', user, 'credential')
+    creds = storage.get()
+    gcm = GCalMover(creds)
+    log = gcm.deduplify(source, destination, 
+                        html=False,
+                        dry_run=False,
+                        )
+    progress['log'] = log
+    request.session['progress'] = progress
+    return redirect('index')
 
 
 #----------------------------------------------------------------------------

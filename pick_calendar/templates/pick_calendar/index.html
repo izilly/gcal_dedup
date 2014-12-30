@@ -57,5 +57,30 @@
     </div>
 {% endif %}
 
+{% if progress.source and progress.destination %}
+<div>
+    <a href="{%url 'pick_calendar:deduplify' %}">
+        Deduplify
+    </a>
+</div>
+
+{% endif %}
+
+
+{% if progress.log %}
+<div>
+    <pre>
+        
+        Log
+
+        {{ progress.log }}
+    </pre>
+</div>
+
+{% endif %}
+
+
+
+
 {% endblock %}
 

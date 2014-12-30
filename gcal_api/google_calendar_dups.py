@@ -160,7 +160,6 @@ class GCalMover(object):
                 kt = re.sub(rt[0], rt[1], kt)
         return kt
 
-    # attr
     def _process_group(self, 
                        group):
         """Sort groups, then move duplicate events to destination calendar."""
@@ -265,7 +264,6 @@ class GCalMover(object):
         else:
             return (True, 'Group (processed):')
 
-    # attr
     def move_event(self, event, destination_calendar_id):
         """Move an event to the destination calendar."""
         try:
@@ -278,26 +276,28 @@ class GCalMover(object):
         except:
             return False
 
-    # attr
     def _get_event_log(self, event):
         """Build a list of strings describing an event."""
         lines = []
-        lines.append(event.get('summary').encode('utf-8'))
+        lines.append(event.get('summary'))
         lines.append(u'{} - {}'.format(event.get('start').get('dateTime'),
                                event.get('end').get('dateTime')))
         for attr in ['description']:
             if event.get(attr): 
-                lines.append(u''.join(event.get(attr)).encode('utf-8'))
+                #lines.append(u''.join(event.get(attr)).encode('utf-8'))
+                lines.append(u''.join(event.get(attr)))
         for attr in ['location', 'recurrence', 'created', 'updated']:
             if event.get(attr):
-                lines.append(u'{}: {}'.format(attr, event.get(attr)).encode('utf-8'))
+                lines.append(u'{}: {}'.format(attr, event.get(attr)))
         if self.html:
-            sep = '<br>\n'
+            sep = u'<br>\n'
         else:
-            sep = '\n'
-        return sep.join(lines)
+            sep = u'\n'
+        try:
+            return sep.join(lines)
+        except:
+            from pudb import set_trace; set_trace()
 
-    # attr
     def _get_group_log(self, results):
         """Build text describing the events of a group."""
         lines = []
@@ -338,7 +338,6 @@ class GCalMover(object):
         if self.std_out:
             print(joined)
         return joined 
-
 
 
 class CLI(object):
@@ -414,7 +413,6 @@ class CLI(object):
         cont = raw_input('Continue? [y/n]: ')
         if cont not in ['y', 'Y']:
             raise SystemExit
-
         #from pudb import set_trace; set_trace()
 
 
