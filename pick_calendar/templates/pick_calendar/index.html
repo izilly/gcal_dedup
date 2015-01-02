@@ -2,9 +2,12 @@
 
 {% block content %}
 
+
+<!--Source Calendar(s) -->
+
 <div id="source">
     <div class="prompt"> 
-        Source Calendar(s):
+        <h2>Source Calendar(s):</h2>
     </div>
     {% if progress.source %}
         <div class="source">
@@ -28,10 +31,13 @@
     {% endif %}
 </div>
 
+
+<!--Destination Calendar-->
+
 {% if progress.source %}
     <div id="destination">
         <div class="prompt"> 
-            Destination Calendar:
+            <h2>Destination Calendar:</h2>
         </div>
 
         {% if progress.destination %}
@@ -57,8 +63,11 @@
     </div>
 {% endif %}
 
+
+<!--Deduplify link/button-->
+
 {% if progress.source and progress.destination %}
-<div>
+<div id="deduplify">
     <a href="{%url 'pick_calendar:deduplify' %}">
         Deduplify
     </a>
@@ -67,18 +76,90 @@
 {% endif %}
 
 
-{% if progress.log %}
-<div>
-    <pre>
-        
-        Log
+<!--Log/results-->
 
-        {{ progress.log }}
-    </pre>
-</div>
+<div id="log">
+{% if progress.log %}
+
+    <div id="log-header">
+        <h2>Log/Results:</h2>
+    </div>
+
+    <ol>
+    {% for group in progress.log %}
+        
+        <li>{{ group.tests }}
+            <ul>
+                <li>Keep
+                    <ul>
+                        <li>
+                            <span class="event-summary">
+                                {{ group.keep.summary }}
+                            </span><br>
+                            <span class="event-date">
+                                {{ group.keep.start_pretty }} - 
+                                {{ group.keep.end_pretty }} <br>
+                            </span>
+                            <span class="event-description">
+                                {{ group.keep.description }} <br>
+                            </span>
+                            <span class="event-location">
+                                location: {{ group.keep.location }} <br>
+                            </span>
+                            <span class="event-created">
+                                created: {{ group.keep.created }} <br>
+                            </span>
+                            <span class="event-updated">
+                                updated: {{ group.keep.updated }} <br>
+                            </span>
+                            <span class="event-calendar">
+                                calendar: {{ group.keep.organizer.displayName }}<br>
+                            </span>
+                        </li>
+                    </ul>
+                </li>
+                <li>Move
+                    <ul>
+                        {% for g in group.remove %}
+                            <li>
+                                {% if g.moved_result == False %}
+                                    <span class="moved-result">
+                                        MOVE FAILED (event could not be moved)<br>
+                                    </span>
+                                {% endif %}
+                                <span class="event-summary">
+                                    {{ g.event.summary }}
+                                </span><br>
+                                <span class="event-date">
+                                    {{ g.event.start_pretty }} - 
+                                    {{ g.event.end_pretty }} <br>
+                                </span>
+                                <span class="event-description">
+                                    {{ g.event.description }} <br>
+                                </span>
+                                <span class="event-location">
+                                    location: {{ g.event.location }} <br>
+                                </span>
+                                <span class="event-created">
+                                    created: {{ g.event.created }} <br>
+                                </span>
+                                <span class="event-updated">
+                                    updated: {{ g.event.updated }} <br>
+                                </span>
+                                <span class="event-calendar">
+                                    calendar: {{ g.event.organizer.displayName }}<br>
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    {% endfor %}
+    </ol>
 
 {% endif %}
-
+</div>
 
 
 

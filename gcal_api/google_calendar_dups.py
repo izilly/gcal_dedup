@@ -3,6 +3,7 @@
 from lxml import etree
 import sys
 import re
+from datetime import datetime
 import httplib2
 from apiclient.discovery import build
 from oauth2client import client
@@ -85,7 +86,7 @@ class GCalMover(object):
             if len(group) > 1:
                 self._process_group(group) 
         #from pudb import set_trace; set_trace()
-        self.log = '\n'.join(self.log)
+        #self.log = '\n'.join(self.log)
         return self.log
 
     def _group_events(self, source_calendar_id):
@@ -165,6 +166,8 @@ class GCalMover(object):
         """Sort groups, then move duplicate events to destination calendar."""
         group = self._sort_group(group)
         tests_passed, tests_msg = self._run_group_tests(group)
+        for g in group:
+            self._add_datetimes_pretty(g)
         results = {'keep': group[0],
                    'tests': tests_msg,
                    'remove': []}
@@ -176,8 +179,32 @@ class GCalMover(object):
                 r['moved_result'] = moved
             results['remove'].append(r)
         #from pudb import set_trace; set_trace()
-        log = self._get_group_log(results)
-        self.log.append(log)
+        self.log.append(results)
+        #log = self._get_group_log(results)
+        #self.log.append(log)
+
+    def _add_datetimes_pretty(self, event):
+        for i in ['start', 'end', 'created', 'updated']:
+            try:
+                orig = event.get(i)
+                if type(orig) == dict:
+                    orig = orig.get('dateTime')
+            except:
+                return None
+            new_attr = '{}_pretty'.format(i)
+            try:
+                pretty = self._get_datetime_pretty(orig)
+                event[new_attr] = pretty
+            except:
+                return None
+
+    def _get_datetime_pretty(self, date_time_string):
+        tz_fixed = re.sub(r'-\d\d\:\d\d$', r'', date_time_string)
+        #tz_fixed = re.sub(r'Z$', r'', tz_fixed)
+        tz_fixed = re.sub(r'(\.\d+)?Z$', '', tz_fixed)
+        dt = datetime.strptime(tz_fixed, '%Y-%m-%dT%H:%M:%S')
+        dt_string = dt.strftime('%m/%d/%Y %I:%M%p')
+        return dt_string
 
     def _sort_group(self, group):
         """Sort the events in a group to determine which event to keep."""
@@ -262,7 +289,7 @@ class GCalMover(object):
             msg = 'Group skipped (due to missing attributes):'
             return (False, msg)
         else:
-            return (True, 'Group (processed):')
+            return (True, '')
 
     def move_event(self, event, destination_calendar_id):
         """Move an event to the destination calendar."""
@@ -289,14 +316,15 @@ class GCalMover(object):
         for attr in ['location', 'recurrence', 'created', 'updated']:
             if event.get(attr):
                 lines.append(u'{}: {}'.format(attr, event.get(attr)))
-        if self.html:
-            sep = u'<br>\n'
-        else:
-            sep = u'\n'
-        try:
-            return sep.join(lines)
-        except:
-            from pudb import set_trace; set_trace()
+        return lines 
+        #if self.html:
+            #sep = u'<br>\n'
+        #else:
+            #sep = u'\n'
+        #try:
+            #return sep.join(lines)
+        #except:
+            #from pudb import set_trace; set_trace()
 
     def _get_group_log(self, results):
         """Build text describing the events of a group."""
