@@ -5,25 +5,19 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as django_login
 from oauth2client.django_orm import Storage
+from oauth2client import client
 import json
 from auth.models import CredentialsModel
 
 
 def get_flow(request):
-    #CLIENT_ID = ('***REMOVED***'
-                 #'.apps.googleusercontent.com')
-    #CLIENT_SECRET = '***REMOVED***'
-    CLIENT_ID = ('***REMOVED***'
-                 '.apps.googleusercontent.com')
-    CLIENT_SECRET = '***REMOVED***'
     SCOPE = ('https://www.googleapis.com/auth/calendar ' 
              'https://www.googleapis.com/auth/userinfo.email ' 
              'https://www.googleapis.com/auth/userinfo.profile')
     redirect_uri = request.build_absolute_uri(reverse('auth:logged_in'))
-    flow = OAuth2WebServerFlow(CLIENT_ID,
-                               CLIENT_SECRET,
-                               SCOPE,
-                               redirect_uri=redirect_uri)
+    flow = client.flow_from_clientsecrets('gcal_api/client_secret.json',
+                                        scope=SCOPE,
+                                        redirect_uri=redirect_uri)
     return flow
 
 def login(request):
