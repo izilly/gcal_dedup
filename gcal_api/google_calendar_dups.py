@@ -180,8 +180,9 @@ class GCalMover(object):
             results['remove'].append(r)
         #from pudb import set_trace; set_trace()
         self.log.append(results)
-        #log = self._get_group_log(results)
-        #self.log.append(log)
+        if self.std_out:
+            std_out = self._get_group_log(results)
+            print(std_out)
 
     def _add_datetimes_pretty(self, event):
         for i in ['start', 'end', 'created', 'updated']:
@@ -307,8 +308,8 @@ class GCalMover(object):
         """Build a list of strings describing an event."""
         lines = []
         lines.append(event.get('summary'))
-        lines.append(u'{} - {}'.format(event.get('start').get('dateTime'),
-                               event.get('end').get('dateTime')))
+        lines.append(u'{} - {}'.format(event.get('start_pretty'),
+                                       event.get('end_pretty')))
         for attr in ['description']:
             if event.get(attr): 
                 #lines.append(u''.join(event.get(attr)).encode('utf-8'))
@@ -317,54 +318,24 @@ class GCalMover(object):
             if event.get(attr):
                 lines.append(u'{}: {}'.format(attr, event.get(attr)))
         return lines 
-        #if self.html:
-            #sep = u'<br>\n'
-        #else:
-            #sep = u'\n'
-        #try:
-            #return sep.join(lines)
-        #except:
-            #from pudb import set_trace; set_trace()
 
     def _get_group_log(self, results):
         """Build text describing the events of a group."""
         lines = []
         failed_msg = 'Move FAILED: event could not be moved'
-        if self.html:
-            failed_msg = '{}<br>'.format(failed_msg)
-        if self.html:
-            lines.append('\n<hr>\n')
-        else:
-            lines.append('\n{}\n'.format('='*50))
-        if self.html:
-            lines.append('<ul><li>')
-        lines.extend(['', results['tests'], ''])
-        if self.html:
-            lines.append('</li><ul><li>')
+        lines.append('\n{}\n'.format('='*50))
+        if results['tests']:
+            lines.extend(['', results['tests'], ''])
         lines.extend(['Keep:', ''])
-        if self.html:
-            lines.append('<ul><li>')
-        lines.append(self._get_event_log(results['keep']))
-        if self.html:
-            lines.append('</li></ul></li><li>')
+        lines.extend(self._get_event_log(results['keep']))
         lines.extend(['', 'Move:', ''])
-        if self.html:
-            lines.append('<ul>')
         for i in results['remove']:
-            if self.html:
-                lines.append('<li>')
             if i['moved_result'] is False:
                 lines.append(failed_msg)
-            lines.append(self._get_event_log(i['event']))
-            if self.html:
-                lines.append('</li>')
+            lines.extend(self._get_event_log(i['event']))
             lines.append('')
-        if self.html:
-            lines.append('</ul></li></ul></ul>')
         lines.append('')
         joined = '\n'.join(lines)
-        if self.std_out:
-            print(joined)
         return joined 
 
 
@@ -379,8 +350,7 @@ class CLI(object):
         self.calendars = self.gcm.get_calendars()
         self.calendar_names = [i.get('summary') for i in self.calendars]
         self.prompt_calendars()
-        #from pudb import set_trace; set_trace()
-        self.gcm.deduplify(self.source_calendars, 
+        log = self.gcm.deduplify(self.source_calendars, 
                                        self.destination_calendar,
                                        #replace_text=[(r'\\n',''), 
                                                      #(r'\\',''), 
@@ -389,6 +359,7 @@ class CLI(object):
                                        dry_run=True,
                                        html=False,
                                        std_out=True)
+        #from pudb import set_trace; set_trace()
 
     def get_creds_native(self):
         """Get oauth2 credentials authorizing access to google calendar."""
