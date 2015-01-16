@@ -367,7 +367,7 @@ class CLI(object):
                 'https://www.googleapis.com/auth/userinfo.email ' 
                 'https://www.googleapis.com/auth/userinfo.profile')
         redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
-        flow = client.flow_from_clientsecrets('client_secret.json',
+        flow = client.flow_from_clientsecrets('client_secrets_installed.json',
                                             scope=SCOPE,
                                             redirect_uri=redirect_uri)
         try:

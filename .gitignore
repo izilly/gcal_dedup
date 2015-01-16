@@ -1,5 +1,5 @@
 *.sqlite3
-client_secret.json
+client_secrets_web.json
 credentials.dat
 .todo*
 settings_secret.py

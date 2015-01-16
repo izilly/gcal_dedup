@@ -15,7 +15,7 @@ def get_flow(request):
              'https://www.googleapis.com/auth/userinfo.email ' 
              'https://www.googleapis.com/auth/userinfo.profile')
     redirect_uri = request.build_absolute_uri(reverse('auth:logged_in'))
-    flow = client.flow_from_clientsecrets('gcal_api/client_secret.json',
+    flow = client.flow_from_clientsecrets('gcal_api/client_secrets_web.json',
                                         scope=SCOPE,
                                         redirect_uri=redirect_uri)
     return flow
