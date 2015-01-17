@@ -355,8 +355,7 @@ class CLI(object):
                                        #replace_text=[(r'\\n',''), 
                                                      #(r'\\',''), 
                                                      #(r'\n','')],
-                                       #dry_run=False,
-                                       dry_run=True,
+                                       #dry_run=True,
                                        html=False,
                                        std_out=True)
         #from pudb import set_trace; set_trace()
