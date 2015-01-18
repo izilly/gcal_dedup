@@ -92,24 +92,3 @@ def deduplify(request):
     return redirect('index')
 
 
-#----------------------------------------------------------------------------
-
-#DONE: redirect back to index after choosing source/dest calendars 
-#        (rather than 'success' results page
-
-#DONE: disable destination calendar selection when source calendars not selected
-
-#TODO: remove source calendar(s) from list of destination calendar choices
-
-#DONE: add a link to reset, start over in source/destination sections 
-
-#TODO: add color to selected calendars 
-
-#TODO: add info/instructions to top of index page 
-
-#TODO: add info about creating a new destination calendar (coming-soon) 
-
-#TODO: add a start/reset button to top of index page 
-
-#----------------------------------------------------------------------------
-
