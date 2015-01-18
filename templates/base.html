@@ -2,27 +2,33 @@
 
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
 
-<div style="float:left;">
-    <a href="{%url 'pick_calendar:reset' %}">gcal_dedup</a>
-</div>
+<!--navbar-->
+<div class="navbar">
+    <div class="nav-left">
+        <ul>
+            <li>
+                <a href="{%url 'pick_calendar:reset' %}">gcal_dedup</a>
+            </li>
+        </ul>
+    </div>
 
-<div style="float:right;">
-    {% if user.username %}
-        <div>
-            {{ user.username }}
-        </div>
-        <div>
-            <a href="{%url 'auth:logout' %}">logout</a>
-        </div>
-    {% else %}
-        <div>
-            <a href="{%url 'auth:login' %}">login</a>
-        </div>
-    {% endif %}
+    <div class="nav-right">
+        <ul>
+            {% if user.username %}
+                <li>
+                    {{ user.username }}
+                </li>
+                <li>
+                    <a href="{%url 'auth:logout' %}">logout</a>
+                </li>
+            {% else %}
+                <li>
+                    <a href="{%url 'auth:login' %}">login</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
 </div>
-
-<div style="clear:both;"></div>
-<hr>
 
 <div id="content">
     {% block content %}{% endblock %}
