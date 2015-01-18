@@ -5,63 +5,51 @@
 
 <!--Source Calendar(s) -->
 
-<div id="source">
-    <div class="prompt"> 
-        <h2>Source Calendar(s):</h2>
-    </div>
+<div id="source" class="choice-box">
+    <!--<div class="prompt"> -->
+        <!--<h2>Source Calendar(s):</h2>-->
+    <!--</div>-->
+    <h3>Source Calendar(s):</h3>
+    <div class="source choice-content">
     {% if progress.source %}
-        <div class="source">
-            <ul>
-                {% for source in progress.source %}
-                    <li>{{ source.summary }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    <div class="select">
+        <ul>
+            {% for source in progress.source %}
+                <li>{{ source.summary }}</li>
+            {% endfor %}
+        </ul>
         <a href="{%url 'pick_calendar:calendars' 'source' %}">
             Reset source calendar(s)
         </a>
-    </div>
     {% else %}
-    <div class="select">
         <a href="{%url 'pick_calendar:calendars' 'source' %}">
-            Select source calendar(s)
+            select
         </a>
-    </div>
     {% endif %}
+    </div>
 </div>
 
-
 <!--Destination Calendar-->
-
-{% if progress.source %}
-    <div id="destination">
-        <div class="prompt"> 
-            <h2>Destination Calendar:</h2>
-        </div>
-
+<div id="destination" class="choice-box">
+    <h3>Destination Calendar</h3>
+    <div class="destination choice-content">
+    {% if progress.source %}
         {% if progress.destination %}
-            <div class="destination">
-                <ul>
-                    {% for dest in progress.destination %}
-                        <li>{{ dest.summary }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        <div class="select">
+            <ul>
+                {% for choice in progress.destination %}
+                    <li>{{ choice.summary }}</li>
+                {% endfor %}
+            </ul>
             <a href="{%url 'pick_calendar:calendars' 'destination' %}">
                 Reset destination calendar
             </a>
-        </div>
         {% else %}
-        <div class="select">
             <a href="{%url 'pick_calendar:calendars' 'destination' %}">
-                Select destination calendar
+                select
             </a>
-        </div>
         {% endif %}
+    {% endif %}
     </div>
-{% endif %}
+</div>
 
 
 <!--Deduplify link/button-->
