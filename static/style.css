@@ -6,6 +6,10 @@ body {
     clear: both;
 }
 
+button a {
+    text-decoration: none;
+}
+
 .navbar {
     background-color: #F5F5F5;
     border-bottom: 1px solid #D8D8D8;
@@ -35,6 +39,12 @@ body {
     list-style-type: none;
     float: left;
     margin: 0 10px;
+}
+
+#deduplify {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .choice-box {
