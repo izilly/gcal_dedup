@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
+from django.utils.html import escape
+import json
 from oauth2client.django_orm import Storage
 from gcal_api.google_calendar_dups import GCalMover
 from auth.models import CredentialsModel
@@ -24,6 +26,14 @@ def get_progress(request, reset=False):
         progress = {'source': [],
                     'destination': [],
                     'completed': None,
+                    'dryrun': False,
+                    'replace_text': False,
+                    'select_original': 'created_earliest',
+                    'created_earliest': True,
+                    'updated_earliest': False,
+                    'min_chars': False,
+                    'rep1f': '',
+                    'rep1r': '',
                     }
         request.session['progress'] = progress
     return progress
@@ -62,16 +72,15 @@ def get_selected(request, progress):
     return calendars_selected
 
 def calendars_selected(request, target):
-    #from pudb import set_trace; set_trace()
+    from pudb import set_trace; set_trace()
     progress = get_progress(request)
     calendars_selected = get_selected(request, progress)
     progress[target] = calendars_selected
     progress['completed'] = target
     request.session['progress'] = progress
-    return redirect('index')
-    #return render(request, 
-                  #'pick_calendar/calendars_selected.html', 
-                  #{'calendar_list': calendars_selected})
+    #return redirect('index')
+    #return redirect('pick_calendar:index')
+    return redirect('{}#source'.format(reverse('index')))
 
 def deduplify(request):
     #from pudb import set_trace; set_trace()
@@ -91,4 +100,42 @@ def deduplify(request):
     request.session['progress'] = progress
     return redirect('index')
 
+def settings(request):
+    #from pudb import set_trace; set_trace()
+    progress = get_progress(request)
+    dryrun = progress['dryrun']
+    select_original = progress['select_original']
+    replace_text = progress['replace_text']
+    rep1f = escape(progress['rep1f'])
+    rep1r = escape(progress['rep1r'])
+    context = {'dryrun': dryrun,
+               'replace_text': replace_text,
+               'select_original': select_original,
+               'rep1f': rep1f,
+               'rep1r': rep1r,
+               'created_earliest': progress['created_earliest'],
+               'updated_earliest': progress['updated_earliest'],
+               'min_chars': progress['min_chars'],
+              }
+    context_json = json.dumps(context)
+    return render(request, 'pick_calendar/settings.html', {'context': context_json})
+
+def settings_update(request):
+    #from pudb import set_trace; set_trace()
+    progress = get_progress(request)
+    dryrun = request.POST.get('dryrun') is not None
+    replace_text = request.POST.get('replace_text') is not None
+    select_original = request.POST.get('select_original')
+    rep1f = request.POST.get('rep1f')
+    rep1r = request.POST.get('rep1r')
+    progress['dryrun'] = dryrun
+    progress['replace_text'] = replace_text
+    progress['select_original'] = select_original
+    progress['created_earliest'] = select_original == 'created_earliest'
+    progress['updated_earliest'] = select_original == 'updated_earliest'
+    progress['min_chars'] = select_original == 'min_chars'
+    progress['rep1f'] = rep1f 
+    progress['rep1r'] = rep1r
+    request.session['progress'] = progress
+    return redirect('index')
 

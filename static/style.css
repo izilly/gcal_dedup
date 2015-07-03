@@ -47,12 +47,16 @@ button a {
     margin-right: auto;
 }
 
-.choice-box {
+.choice-box, .blank-box {
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.blank-box {
+    text-align: right;
 }
 
 .choice-box h3 {
@@ -70,6 +74,33 @@ button a {
     border: 1px solid #D8D8D8;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
+}
+
+
+.ind {
+    margin-left: 25px;
+}
+
+.hide {
+    display: none;
+}
+
+.setting_div {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #E4E4E4;
+}
+
+#height {
+    height: 100%;
+}
+
+.choice-box::before {
+    display: block;
+    content: " ";
+    margin-top: -5px;
+    height: 5px;
+    visibility: hidden;
 }
 
 

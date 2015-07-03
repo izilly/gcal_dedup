@@ -8,5 +8,7 @@ urlpatterns = patterns('',
         name='calendars_selected'),
     url(r'^deduplify/$', views.deduplify, name='deduplify'),
     url(r'^reset/$', views.reset, name='reset'),
+    url(r'^settings/$', views.settings, name='settings'),
+    url(r'^settings/update/$', views.settings_update, name='settings_update'),
 )
 

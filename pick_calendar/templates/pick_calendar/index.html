@@ -2,9 +2,11 @@
 
 {% block content %}
 
+<div class="blank-box">
+    <a href="{% url 'pick_calendar:settings' %}">settings</a>
+</div>
 
 <!--Source Calendar(s) -->
-
 <div id="source" class="choice-box">
     <!--<div class="prompt"> -->
         <!--<h2>Source Calendar(s):</h2>-->
@@ -160,6 +162,7 @@
 </div>
 
 
+<div id="height">&nbsp;</div>
 
 {% endblock %}
 
