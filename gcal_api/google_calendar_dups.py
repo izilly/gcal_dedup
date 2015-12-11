@@ -8,7 +8,7 @@ import httplib2
 from apiclient.discovery import build
 from oauth2client import client
 from oauth2client.file import Storage
-from oauth2client.tools import run
+#from oauth2client.tools import run
 import json
 import webbrowser
 
@@ -16,7 +16,7 @@ import webbrowser
 REMOVE_ATTRS = ['id', 'htmlLink', 'iCalUID', 'gadget', 'attendees']
 
 def output_rpt_line():
-    print '\n\n{0}\n{0}\n\n'.format('='*78)
+    print ('\n\n{0}\n{0}\n\n'.format('='*78))
 
 class GCalMover(object):
     """A class for moving/deduplifying google calendar events."""

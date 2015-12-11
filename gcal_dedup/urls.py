@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^pick_calendar/', include('pick_calendar.urls', 
                                     namespace='pick_calendar')),
-    url(r'^accounts/', include('auth.urls', 
-                                    namespace='auth')),
+    url(r'^accounts/', include('gcal_auth.urls', 
+                                    namespace='gcal_auth')),
 )
 

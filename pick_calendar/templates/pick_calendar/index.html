@@ -19,17 +19,13 @@
                 <li>{{ source.summary }}</li>
             {% endfor %}
         </ul>
-        <button type="button">
-            <a href="{%url 'pick_calendar:calendars' 'source' %}">
+            <a class='button' href="{%url 'pick_calendar:calendars' 'source' %}">
                 Reset source calendar(s)
             </a>
-        </button>
     {% else %}
-        <button type="button">
-            <a href="{%url 'pick_calendar:calendars' 'source' %}">
+            <a class='button' href="{%url 'pick_calendar:calendars' 'source' %}">
                 select
             </a>
-        </button>
     {% endif %}
     </div>
 </div>
@@ -45,17 +41,13 @@
                     <li>{{ choice.summary }}</li>
                 {% endfor %}
             </ul>
-            <button type="button">
-                <a href="{%url 'pick_calendar:calendars' 'destination' %}">
+                <a class='button' href="{%url 'pick_calendar:calendars' 'destination' %}">
                     Reset destination calendar
                 </a>
-            </button>
         {% else %}
-            <button type="button">
-                <a href="{%url 'pick_calendar:calendars' 'destination' %}">
+                <a class='button' href="{%url 'pick_calendar:calendars' 'destination' %}">
                     select
                 </a>
-            </button>
         {% endif %}
     {% endif %}
     </div>
@@ -66,11 +58,9 @@
 
 {% if progress.source and progress.destination %}
 <div id="deduplify">
-    <button type="button">
-        <a href="{%url 'pick_calendar:deduplify' %}">
+        <a class='button' href="{%url 'pick_calendar:deduplify' %}">
             Deduplify
         </a>
-    </button>
 </div>
 
 {% endif %}

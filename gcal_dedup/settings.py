@@ -29,7 +29,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'pick_calendar',
-    'auth',
+    'gcal_auth',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -82,4 +82,4 @@ STATICFILES_DIRS = (
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
-from settings_secret import *
+from .settings_secret import *

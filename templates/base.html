@@ -19,11 +19,11 @@
                     {{ user.username }}
                 </li>
                 <li>
-                    <a href="{%url 'auth:logout' %}">logout</a>
+                    <a href="{%url 'gcal_auth:logout' %}">logout</a>
                 </li>
             {% else %}
                 <li>
-                    <a href="{%url 'auth:login' %}">login</a>
+                    <a href="{%url 'gcal_auth:login' %}">login</a>
                 </li>
             {% endif %}
         </ul>

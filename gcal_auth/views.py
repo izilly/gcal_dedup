@@ -7,14 +7,14 @@ from django.contrib.auth import login as django_login
 from oauth2client.django_orm import Storage
 from oauth2client import client
 import json
-from auth.models import CredentialsModel
+from gcal_auth.models import CredentialsModel
 
 
 def get_flow(request):
     SCOPE = ('https://www.googleapis.com/auth/calendar ' 
              'https://www.googleapis.com/auth/userinfo.email ' 
              'https://www.googleapis.com/auth/userinfo.profile')
-    redirect_uri = request.build_absolute_uri(reverse('auth:logged_in'))
+    redirect_uri = request.build_absolute_uri(reverse('gcal_auth:logged_in'))
     flow = client.flow_from_clientsecrets('gcal_api/client_secrets_web.json',
                                         scope=SCOPE,
                                         redirect_uri=redirect_uri)

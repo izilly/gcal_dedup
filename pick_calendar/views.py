@@ -5,7 +5,7 @@ from django.utils.html import escape
 import json
 from oauth2client.django_orm import Storage
 from gcal_api.google_calendar_dups import GCalMover
-from auth.models import CredentialsModel
+from gcal_auth.models import CredentialsModel
 from django.contrib.auth.decorators import login_required
 
 
@@ -72,7 +72,7 @@ def get_selected(request, progress):
     return calendars_selected
 
 def calendars_selected(request, target):
-    from pudb import set_trace; set_trace()
+    #from pudb import set_trace; set_trace()
     progress = get_progress(request)
     calendars_selected = get_selected(request, progress)
     progress[target] = calendars_selected
