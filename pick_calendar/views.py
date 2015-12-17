@@ -93,7 +93,7 @@ def deduplify(request):
     gcm = GCalMover(creds)
     log = gcm.deduplify(source, destination, 
                         html=False,
-                        dry_run=True,
+                        dry_run=progress['dryrun'],
                         )
     #from pudb import set_trace; set_trace()
     progress['log'] = log
