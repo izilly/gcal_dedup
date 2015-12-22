@@ -3,3 +3,4 @@ client_secrets_web.json
 credentials.dat
 .todo*
 settings_secret.py
+settings_other.*
