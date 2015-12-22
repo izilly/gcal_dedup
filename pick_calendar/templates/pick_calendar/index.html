@@ -58,10 +58,26 @@
 
 {% if progress.source and progress.destination %}
 <div id="deduplify">
-        <a class='button' href="{%url 'pick_calendar:deduplify' %}">
+        <a class='button' id='deduplify-button' 
+            href="{%url 'pick_calendar:deduplify' %}">
             Deduplify
         </a>
 </div>
+
+<div class="bbox" >
+    <div id="spinner" class="throbber-loader" style="display:none;" >
+      Loading…
+    </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#deduplify-button').click(function() {
+        $('#spinner').show();
+    });
+});
+</script>
+
 
 {% endif %}
 
