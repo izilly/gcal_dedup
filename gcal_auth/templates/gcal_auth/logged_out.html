@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 
+
+{%block head %}{{ block.super }}
+    <script type="text/javascript">
+        setTimeout(function() {
+            window.location.href = "{% url 'pick_calendar:reset' %}";
+        }, 2000);
+    </script>
+{% endblock head %}
+
+
+
 {% block content %}
 <h3>Logged out.</h3>
 {% endblock %}

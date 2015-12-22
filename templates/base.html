@@ -1,7 +1,24 @@
-{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+  {% block head %}
+  <head>
+    <meta charset="utf-8">
+    <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <!--<meta name="description" content="">-->
+    <!--<meta name="author" content="">-->
+    <!--<link rel="icon" href="../../favicon.ico">-->
+    <title>gcal_dedup</title>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+    <script src="{% static 'jquery-1.11.3.js' %}"></script>
 
-<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
-<script src="{% static 'jquery-1.11.3.js' %}"></script>
+  </head>
+  {% endblock head %}
+
+  <body>
+
 
 <!--navbar-->
 <div class="navbar">
@@ -34,3 +51,6 @@
 <div id="content">
     {% block content %}{% endblock %}
 </div>
+
+</body>
+</html>
