@@ -127,7 +127,21 @@ def settings(request):
 def settings_update(request):
     #from pudb import set_trace; set_trace()
     progress = get_progress(request)
+    old_dryrun = progress.get('dryrun')
     dryrun = request.POST.get('dryrun') is not None
+
+    # when user runs dryrun then switches off dryrun, we clear log
+    # this ensures the log doesn't reappear by simply re-enabling dryrun
+    # immediately after that
+    if ( old_dryrun and not dryrun 
+         and progress['completed'] == 'dryrun' ):
+        if progress['source'] and progress['destination']:
+            progress['completed'] = 'destination'
+        elif progress['source']:
+            progress['completed'] = 'source'
+        else:
+            progress['completed'] = None
+
     replace_text = request.POST.get('replace_text') is not None
     select_original = request.POST.get('select_original')
     rep1f = request.POST.get('rep1f')

@@ -86,7 +86,7 @@
 
 <div id="log">
 {% if progress.log %}
-{% if progress.completed == True or progress.completed == 'dryrun' %}
+{% if progress.completed == True or progress.completed == 'dryrun' and progress.dryrun %}
 
     <div id="log-header">
         <h2>Log/Results:</h2>
