@@ -59,7 +59,15 @@
           </label>
         </div>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'pick_calendar:settings_default' %}">
+        <button type="button" 
+                class="btn btn-default">Defaults</button>
+        </a>
+        <a href="{% url 'pick_calendar:index' %}">
+        <button type="button" 
+                class="btn btn-default pull-right">Cancel</button>
+        </a>
 
       </form>
     </div> <!--panel-body-->

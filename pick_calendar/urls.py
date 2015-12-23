@@ -10,5 +10,8 @@ urlpatterns = patterns('',
     url(r'^reset/$', views.reset, name='reset'),
     url(r'^settings/$', views.settings, name='settings'),
     url(r'^settings/update/$', views.settings_update, name='settings_update'),
+    url(r'^settings/default/$', views.settings_update, 
+        {'default': True},
+        name='settings_default'),
 )
 

@@ -124,7 +124,7 @@ def settings(request):
     context_json = json.dumps(context)
     return render(request, 'pick_calendar/settings.html', {'context': context_json})
 
-def settings_update(request):
+def settings_update(request, default=False):
     #from pudb import set_trace; set_trace()
     progress = get_progress(request)
     old_dryrun = progress.get('dryrun')
@@ -142,18 +142,29 @@ def settings_update(request):
         else:
             progress['completed'] = None
 
-    replace_text = request.POST.get('replace_text') is not None
-    select_original = request.POST.get('select_original')
-    rep1f = request.POST.get('rep1f')
-    rep1r = request.POST.get('rep1r')
-    progress['dryrun'] = dryrun
-    progress['replace_text'] = replace_text
-    progress['select_original'] = select_original
-    progress['created_earliest'] = select_original == 'created_earliest'
-    progress['updated_earliest'] = select_original == 'updated_earliest'
-    progress['min_chars'] = select_original == 'min_chars'
-    progress['rep1f'] = rep1f 
-    progress['rep1r'] = rep1r
-    request.session['progress'] = progress
-    return redirect('pick_calendar:index')
+    # replace_text not currently implemented
+    #replace_text = request.POST.get('replace_text') is not None
+    #rep1f = request.POST.get('rep1f')
+    #rep1r = request.POST.get('rep1r')
+    #progress['replace_text'] = replace_text
+    #progress['rep1f'] = rep1f 
+    #progress['rep1r'] = rep1r
+
+    if default:
+        progress['dryrun'] = False
+        progress['created_earliest'] = True
+        progress['updated_earliest'] = False
+        progress['min_chars'] = False
+        progress['select_original'] = 'created_earliest'
+        request.session['progress'] = progress
+        return redirect('pick_calendar:settings')
+    else:
+        progress['dryrun'] = dryrun
+        select_original = request.POST.get('select_original')
+        progress['select_original'] = select_original
+        progress['created_earliest'] = select_original == 'created_earliest'
+        progress['updated_earliest'] = select_original == 'updated_earliest'
+        progress['min_chars'] = select_original == 'min_chars'
+        request.session['progress'] = progress
+        return redirect('pick_calendar:index')
 
