@@ -30,3 +30,9 @@ body {
 .panel h3 {
     font-size: 1.3em;
 }
+
+#padded-box {
+    /*padding: 0 20px !important;*/
+    text-align: center;
+    ;
+}

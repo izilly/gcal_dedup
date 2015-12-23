@@ -61,14 +61,15 @@
                 </a>
         {% endif %}
     {% endif %}
-    </div>
-</div>
+      </div>
+  </div>
 
 <!--Deduplify link/button-->
 
+<div id="padded-box">
 {% if progress.completed == 'destination' or progress.completed == 'dryrun' %}
     <div id="deduplify">
-            <a class='btn btn-danger' id='deduplify-button' 
+            <a class='btn btn-danger btn-lg' id='deduplify-button'
                 href="{%url 'pick_calendar:deduplify' %}">
                 Deduplify
             </a>
@@ -80,6 +81,7 @@
       </div>
     </div>
 {% endif %}
+</div>
 
 
 <!--Log/results-->
