@@ -10,7 +10,7 @@
     <h3>Settings</h3>
     <div class="settings choice-content">
 
-<form action="/pick_calendar/settings/update/" method="post">
+<form action="{% url 'pick_calendar:settings_update' %}" method="post">
     {% csrf_token %}
   
     <!--DRYRUN-->

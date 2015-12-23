@@ -5,10 +5,9 @@ import pick_calendar.views
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', pick_calendar.views.index, name='index'),
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^pick_calendar/', include('pick_calendar.urls', 
+    url(r'^', include('pick_calendar.urls', 
                                     namespace='pick_calendar')),
+    url(r'^admin/', include(admin.site.urls)),
     url(r'^accounts/', include('gcal_auth.urls', 
                                     namespace='gcal_auth')),
 )

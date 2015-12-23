@@ -18,7 +18,7 @@ def index(request):
 
 def reset(request):
     progress = get_progress(request, reset=True)
-    return redirect('index')
+    return redirect('pick_calendar:index')
 
 def get_progress(request, reset=False):
     progress = request.session.get('progress')
@@ -78,7 +78,7 @@ def calendars_selected(request, target):
     progress[target] = calendars_selected
     progress['completed'] = target
     request.session['progress'] = progress
-    return redirect('index')
+    return redirect('pick_calendar:index')
     #return redirect('pick_calendar:index')
     #return redirect('{}#source'.format(reverse('index')))
 
@@ -98,7 +98,7 @@ def deduplify(request):
     #from pudb import set_trace; set_trace()
     progress['log'] = log
     request.session['progress'] = progress
-    return redirect('index')
+    return redirect('pick_calendar:index')
 
 def settings(request):
     #from pudb import set_trace; set_trace()
@@ -137,5 +137,5 @@ def settings_update(request):
     progress['rep1f'] = rep1f 
     progress['rep1r'] = rep1r
     request.session['progress'] = progress
-    return redirect('index')
+    return redirect('pick_calendar:index')
 
