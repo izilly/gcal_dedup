@@ -19,3 +19,6 @@ body {
   }
 }
 
+.navbar-brand {
+    margin-right: 35px;
+}
