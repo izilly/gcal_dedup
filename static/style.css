@@ -22,3 +22,11 @@ body {
 .navbar-brand {
     margin-right: 35px;
 }
+
+.settings h5 {
+    font-size: 1.2em;
+}
+
+.panel h3 {
+    font-size: 1.3em;
+}

@@ -1,14 +1,14 @@
-function enable_text_replacement() {
-    var text_ids = ['rep1f', 'rep1r',
-                    'rep2f', 'rep2r',
-                    'rep3f', 'rep3r',
-                    'rep4f', 'rep4r',
-                    'rep5f', 'rep5r',
-                    ];
-    var alength = text_ids.length;
-    
-    for (var i = 0; i < alength; i++) {
-         var ele = document.getElementById(text_ids[i]);
-         ele.disabled = !ele.disabled;
-    }
+function restore_check(id, current) {
+  var element = document.getElementById(id);
+  element['checked'] = current;
 }
+
+var settings = ['dryrun', 'created_earliest', 'updated_earliest', 'min_chars'];
+for (i of settings) {
+  restore_check (i, current_settings[i]);
+};
+
+//Object.keys(current_settings).forEach(function (k) {
+  //restore_check (k, current_settings[k]);
+//});
+

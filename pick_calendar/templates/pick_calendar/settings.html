@@ -2,107 +2,83 @@
 
 {% block content %}
 
-<!--settings-->
-{% load staticfiles %}
-<script src="{% static 'settings.js' %}"></script> 
-
-<div id="settings" class="choice-box">
-    <h3>Settings</h3>
-    <div class="settings choice-content">
-
-<form action="{% url 'pick_calendar:settings_update' %}" method="post">
-    {% csrf_token %}
-  
-    <!--DRYRUN-->
-    <div id="dryrun_div" class="setting_div">
-    <input type="checkbox" name="dryrun" id="dryrun" value="True">
-        <label for="dryrun">Dry Run</label>
+  <div class="panel panel-primary settings">
+    <div class="panel-heading">
+      <h3 class="panel-title">Settings</h3>
     </div>
-  
-    <!--REPLACE TEXT-->
-    <div id="replace_text_div" class="setting_div">
-    <input type="checkbox" name="replace_text" id="replace_text" 
-           value="replace_text" 
-           onclick="enable_text_replacement();" >
-        <label for="replace_text">Replace Text:</label>
-        <div class="ind">
-            <input type="text" id="rep1f" name="rep1f" placeholder="find" disabled>
-            <input type="text" id="rep1r" name="rep1r" placeholder="replace" disabled>
 
-            <input type="text" id="rep2f" placeholder="find" class="hide" disabled>
-            <input type="text" id="rep2r" placeholder="replace" class="hide" disabled>
+    <div class="panel-body">
 
-            <input type="text" id="rep3f" placeholder="find" class="hide" disabled>
-            <input type="text" id="rep3r" placeholder="replace" class="hide" disabled>
+      <form action="{% url 'pick_calendar:settings_update' %}" method="post">
+        {% csrf_token %}
 
-            <input type="text" id="rep4f" placeholder="find" class="hide" disabled>
-            <input type="text" id="rep4r" placeholder="replace" class="hide" disabled>
-            
-            <input type="text" id="rep5f" placeholder="find" class="hide" disabled>
-            <input type="text" id="rep5r" placeholder="replace" class="hide" disabled>
+        <h5 class="list-group-heading">Dry Run</h3>
+
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" 
+                   id="dryrun" 
+                   name='dryrun' 
+                   value="True">
+            Enabled
+          </label>
         </div>
-    </div>
 
-    <!--ORIGINAL EVENT SELECTION-->
-    <div id="select_original_div" class="setting_div">
-        Select Original Event By:<br>
+        <hr />
+
+        <h5 class="list-group-heading">Select original event by:</h3>
+
+        <div class="radio">
+          <label>
             <input type="radio" 
                    name="select_original" 
                    id="created_earliest" 
                    value="created_earliest"
-                   checked>
-                <label for="created_earliest">
-                    Created (earliest)
-                </label><br>
+                   checked >
+            Created (earliest)
+          </label>
+        </div>
 
+        <div class="radio">
+          <label>
             <input type="radio" 
                    name="select_original" 
                    id="updated_earliest" 
                    value="updated_earliest" >
-                <label for="updated_earliest">
-                    Updated (earliest)
-                </label><br>
+            Updated (earliest)
+          </label>
+        </div>
 
+        <div class="radio">
+          <label>
             <input type="radio" 
                    name="select_original" 
                    id="min_chars" 
                    value="min_chars" >
-                <label for="min_chars">
-                    Minimum Characters
-                </label>
-    </div>
+            Minimum Characters
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+
+      </form>
+    </div> <!--panel-body-->
+  </div> <!--panel-->
+
+{% endblock content %}
 
 
-<input type="submit" value="Update">
-</form>
+{% block js %}{{ block.super }}
+  {% load staticfiles %}
+  <!--put context into global namespace so we can access in javascript-->
+  <script type="text/javascript">
+    var current_settings = {};
+    current_settings.dryrun = {{ context|safe }}.dryrun;
+    current_settings.created_earliest = {{ context|safe }}.created_earliest;
+    current_settings.updated_earliest = {{ context|safe }}.updated_earliest;
+    current_settings.min_chars = {{ context|safe }}.min_chars;
+  </script>
+  <!--restore current settings-->
+  <script src="{% static 'settings.js' %}"></script> 
+{% endblock js %}
 
-    </div>
-</div>
-
-<script type="text/javascript">
-    var context = {{ context|safe }};
-
-    <!--dryrun-->
-    var dryrun = document.getElementById('dryrun');
-    dryrun.checked = context['dryrun'];
-
-    <!--replace_text-->
-    var replace_text = document.getElementById('replace_text');
-    replace_text.checked = context['replace_text'];
-    var rep1f = document.getElementById('rep1f');
-    var rep1r = document.getElementById('rep1r');
-    rep1f.value = context['rep1f'];
-    rep1r.value = context['rep1r'];
-    rep1f.disabled = !context['replace_text'];
-    rep1r.disabled = !context['replace_text'];
-
-    <!--select_original-->
-    var created_earliest = document.getElementById('created_earliest');
-    var updated_earliest = document.getElementById('updated_earliest');
-    var min_chars = document.getElementById('min_chars');
-    created_earliest.checked = context['created_earliest'];
-    updated_earliest.checked = context['updated_earliest'];
-    min_chars.checked = context['min_chars'];
-
-</script>
-{% endblock %}
