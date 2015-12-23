@@ -64,11 +64,9 @@
     </div>
 </div>
 
-
 <!--Deduplify link/button-->
 
-{% if progress.source and progress.destination %}
-  {% if not progress.log or progress.dryrun %}
+{% if progress.completed == 'destination' or progress.completed == 'dryrun' %}
     <div id="deduplify">
             <a class='btn btn-danger' id='deduplify-button' 
                 href="{%url 'pick_calendar:deduplify' %}">
@@ -81,7 +79,6 @@
           Loading…
         </div>
     </div>
-  {% endif %}
 {% endif %}
 
 
@@ -89,6 +86,7 @@
 
 <div id="log">
 {% if progress.log %}
+{% if progress.completed == True or progress.completed == 'dryrun' %}
 
     <div id="log-header">
         <h2>Log/Results:</h2>
@@ -167,6 +165,7 @@
     {% endfor %}
     </ol>
 
+{% endif %}
 {% endif %}
 </div>
 

@@ -76,7 +76,10 @@ def calendars_selected(request, target):
     progress = get_progress(request)
     calendars_selected = get_selected(request, progress)
     progress[target] = calendars_selected
-    progress['completed'] = target
+    if progress['destination']:
+        progress['completed'] = 'destination'
+    else:
+        progress['completed'] = target
     request.session['progress'] = progress
     return redirect('pick_calendar:index')
     #return redirect('pick_calendar:index')
@@ -97,6 +100,7 @@ def deduplify(request):
                         )
     #from pudb import set_trace; set_trace()
     progress['log'] = log
+    progress['completed'] = True if not progress['dryrun'] else 'dryrun'
     request.session['progress'] = progress
     return redirect('pick_calendar:index')
 
