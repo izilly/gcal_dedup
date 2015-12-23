@@ -60,7 +60,7 @@ def logged_in(request):
     login_redirect_uri = request.session.get('login_redirect')
     # otherwise, redirect to 'index'
     if not login_redirect_uri:
-        login_redirect_uri = 'index'
+        login_redirect_uri = 'pick_calendar:index'
     return redirect(login_redirect_uri)
 
 
