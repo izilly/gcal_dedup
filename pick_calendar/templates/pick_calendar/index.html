@@ -1,34 +1,34 @@
 {% extends "base.html" %}
 
-{% block content %}
+  {% block content %}
 
-<div class="blank-box">
-    <a href="{% url 'pick_calendar:settings' %}">settings</a>
-</div>
+  <!--<div class="blank-box">-->
+      <!--<a href="{% url 'pick_calendar:settings' %}">settings</a>-->
+  <!--</div>-->
 
-<!--Source Calendar(s) -->
-<div id="source" class="choice-box">
-    <!--<div class="prompt"> -->
-        <!--<h2>Source Calendar(s):</h2>-->
-    <!--</div>-->
-    <h3>Source Calendar(s):</h3>
-    <div class="source choice-content">
-    {% if progress.source %}
-        <ul>
-            {% for source in progress.source %}
-                <li>{{ source.summary }}</li>
-            {% endfor %}
-        </ul>
-            <a class='button' href="{%url 'pick_calendar:calendars' 'source' %}">
-                Reset source calendar(s)
-            </a>
-    {% else %}
-            <a class='button' href="{%url 'pick_calendar:calendars' 'source' %}">
-                select
-            </a>
-    {% endif %}
-    </div>
-</div>
+  <!--Source Calendar(s) -->
+  <div id="source" class="choice-box">
+      <!--<div class="prompt"> -->
+          <!--<h2>Source Calendar(s):</h2>-->
+      <!--</div>-->
+      <h3>Source Calendar(s):</h3>
+      <div class="source choice-content">
+      {% if progress.source %}
+          <ul>
+              {% for source in progress.source %}
+                  <li>{{ source.summary }}</li>
+              {% endfor %}
+          </ul>
+              <a class='button' href="{%url 'pick_calendar:calendars' 'source' %}">
+                  Reset source calendar(s)
+              </a>
+      {% else %}
+              <a class='button' href="{%url 'pick_calendar:calendars' 'source' %}">
+                  select
+              </a>
+      {% endif %}
+      </div>
+  </div>
 
 <!--Destination Calendar-->
 <div id="destination" class="choice-box">
