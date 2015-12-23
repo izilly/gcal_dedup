@@ -66,7 +66,10 @@
                 class="active"
               {% endif %}
               >
-              <a href="{% url 'pick_calendar:reset' %}">Home</a>
+              <a href="{% url 'pick_calendar:index' %}">Home</a>
+            </li>
+            <li> 
+              <a href="{% url 'pick_calendar:reset' %}">Reset</a>
             </li>
             <li
               {% if request.path == '/settings/' %}
