@@ -1,5 +1,5 @@
 body {
-  padding-top: 70px;
+  padding-top: 90px;
 }
 
 .spinner-div {
@@ -15,3 +15,11 @@ body {
 .footer {
     display: none;
 }
+
+@media (min-width: 840px) {
+  .container #content {
+    max-width: 810px;
+    margin: 0 auto;
+  }
+}
+
