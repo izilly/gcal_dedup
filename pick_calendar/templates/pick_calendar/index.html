@@ -6,13 +6,16 @@
       <!--<a href="{% url 'pick_calendar:settings' %}">settings</a>-->
   <!--</div>-->
 
+
   <!--Source Calendar(s) -->
-  <div id="source" class="choice-box">
+  <div id="source" class="panel panel-default">
       <!--<div class="prompt"> -->
           <!--<h2>Source Calendar(s):</h2>-->
       <!--</div>-->
-      <h3>Source Calendar(s):</h3>
-      <div class="source choice-content">
+      <div class="panel-heading">
+        <h3 class="panel-title">Source Calendar(s)</h3>
+      </div>
+      <div class="source panel-body">
       {% if progress.source %}
           <ul>
               {% for source in progress.source %}
@@ -30,11 +33,14 @@
       </div>
   </div>
 
-<!--Destination Calendar-->
-<div id="destination" class="choice-box">
-    <h3>Destination Calendar</h3>
-    <div class="destination choice-content">
-    {% if progress.source %}
+
+  <!--Destination Calendar-->
+  <div id="destination" class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Destination Calendar</h3>
+      </div>
+      <div class="destination panel-body">
+      {% if progress.source %}
         {% if progress.destination %}
             <ul>
                 {% for choice in progress.destination %}
