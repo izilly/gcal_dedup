@@ -51,19 +51,26 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="{% url 'pick_calendar:index' %}">
+          <a class="navbar-brand" href="{% url 'pick_calendar:reset' %}">
             gcal_dedup
           </a>
         </div> <!--navbar-header-->
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active">
-              <a href="{% url 'pick_calendar:index' %}">Home</a>
+            <li 
+              {% if request.path != '/settings/' %}
+                class="active"
+              {% endif %}
+              >
+              <a href="{% url 'pick_calendar:reset' %}">Home</a>
             </li>
-            <li>
+            <li
+              {% if request.path == '/settings/' %}
+                class="active"
+              {% endif %}
+              >
               <a href="{% url 'pick_calendar:settings' %}">Settings</a>
             </li>
-            <!--<li><a href="#contact">Contact</a></li>-->
             <!--<li class="dropdown">-->
               <!--<a href="#" -->
                   <!--class="dropdown-toggle" -->
@@ -86,62 +93,25 @@
           </ul> <!--navbar-nav-->
           <ul class="nav navbar-nav navbar-right">
             <!--<li class="active">-->
-            <li>
-              <a href="{% url 'gcal_auth:login' %}">Login</a>
-            </li>
-            <li>
-              <a href="{% url 'gcal_auth:logout' %}">Logout</a>
-            </li>
+            {% if not user.username %}
+              <li>
+                <a href="{% url 'gcal_auth:login' %}">Login</a>
+              </li>
+            {% else %}
+              <li>
+                <a href="#">[{{ user.username }}]</a>
+              </li>
+              <li>
+                <a href="{% url 'gcal_auth:logout' %}">Logout</a>
+              </li>
+            {% endif %}
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
 
 
-
-
-      {% comment %}
-      <div class="header clearfix">
-        <nav>
-          <ul class="nav nav-pills pull-right">
-            <!--<li role="presentation" class="active">-->
-            <li role="presentation"
-                {% if request.path == '/' %}
-                  class="active"
-                {% endif %}
-              >
-              <a href="{%url 'pick_calendar:reset' %}">Home</a>
-            </li>
-            <li role="presentation"
-                {% if request.path == '/settings/' %}
-                  class="active"
-                {% endif %}
-              >
-              <a href="{%url 'pick_calendar:settings' %}">Settings</a>
-            </li>
-            {% if user.username %}
-              <li role="presentation">
-                <a href="{%url 'gcal_auth:logout' %}">Logout</a>
-              </li>
-            {% else %}
-              <li role="presentation">
-                <a href="{%url 'gcal_auth:login' %}">login</a>
-              </li>
-            {% endif %}
-          </ul>
-        </nav>
-      </div>
-      {% endcomment %}
-
-
-
     <div class="container">
-
-      <div id="username">
-        {% if user.username %}
-          {{ user.username }}
-        {% endif %}
-      </div>
 
       <div id="content">
         {% block content %}{% endblock %}
