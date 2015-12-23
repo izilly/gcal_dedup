@@ -18,6 +18,9 @@
                 <label for="choice{{ forloop.counter }}">{{ choice.summary }}</label><br />
             {% endfor %}
             <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'pick_calendar:index'  %}">
+              <button type="button" class="btn btn-default pull-right">Cancel</button>
+            </a>
             </form>
         {% else %}
             <p>Error getting list of calendars</p>
