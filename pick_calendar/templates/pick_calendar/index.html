@@ -74,10 +74,10 @@
             </a>
     </div>
 
-    <div class="spinner-div" >
-        <div id="spinner" class="throbber-loader" style="display:none;" >
-          Loading…
-        </div>
+    <div id="spinner-div" class="spinner-div"
+                          style="display:none;" >
+      <div id="spinner" class="throbber-loader">
+      </div>
     </div>
 {% endif %}
 
@@ -177,7 +177,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
     $('#deduplify-button').click(function() {
-        $('#spinner').show();
+        $('#spinner-div').show();
     });
 });
 </script>
