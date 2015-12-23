@@ -78,6 +78,9 @@
               >
               <a href="{% url 'pick_calendar:settings' %}">Settings</a>
             </li>
+            <li id='scroll-top' style="display:none;">
+              <a href="#">Top</a>
+            </li>
             <!--<li class="dropdown">-->
               <!--<a href="#" -->
                   <!--class="dropdown-toggle" -->
@@ -147,6 +150,9 @@
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{% static 'ie10-viewport-bug-workaround.js' %}"></script>
+
+    <!-- scroll to top button  -->
+    <script src="{% static 'scrolltop.js' %}"></script>
 
     {% endblock js %}
   </body>
