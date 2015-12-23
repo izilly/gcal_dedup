@@ -2,16 +2,15 @@
 
   {% block content %}
 
-  <!--<div class="blank-box">-->
-      <!--<a href="{% url 'pick_calendar:settings' %}">settings</a>-->
-  <!--</div>-->
-
 
   <!--Source Calendar(s) -->
-  <div id="source" class="panel panel-default">
-      <!--<div class="prompt"> -->
-          <!--<h2>Source Calendar(s):</h2>-->
-      <!--</div>-->
+  <div id="source" 
+     {% if progress.source %}
+       class="panel panel-default"
+     {% else %}
+       class="panel panel-primary"
+     {% endif %}
+    >
       <div class="panel-heading">
         <h3 class="panel-title">Source Calendar(s)</h3>
       </div>
@@ -22,12 +21,12 @@
                   <li>{{ source.summary }}</li>
               {% endfor %}
           </ul>
-              <a class='button' href="{%url 'pick_calendar:calendars' 'source' %}">
+              <a class='btn btn-default' href="{%url 'pick_calendar:calendars' 'source' %}">
                   Reset source calendar(s)
               </a>
       {% else %}
-              <a class='button' href="{%url 'pick_calendar:calendars' 'source' %}">
-                  select
+              <a class='btn btn-primary' href="{%url 'pick_calendar:calendars' 'source' %}">
+                  Select
               </a>
       {% endif %}
       </div>
@@ -35,7 +34,13 @@
 
 
   <!--Destination Calendar-->
-  <div id="destination" class="panel panel-default">
+  <div id="destination" 
+     {% if not progress.source or progress.destination %}
+       class="panel panel-default"
+     {% else %}
+       class="panel panel-primary"
+     {% endif %}
+    >
       <div class="panel-heading">
         <h3 class="panel-title">Destination Calendar</h3>
       </div>
@@ -47,12 +52,12 @@
                     <li>{{ choice.summary }}</li>
                 {% endfor %}
             </ul>
-                <a class='button' href="{%url 'pick_calendar:calendars' 'destination' %}">
+                <a class='btn btn-default' href="{%url 'pick_calendar:calendars' 'destination' %}">
                     Reset destination calendar
                 </a>
         {% else %}
-                <a class='button' href="{%url 'pick_calendar:calendars' 'destination' %}">
-                    select
+                <a class='btn btn-primary' href="{%url 'pick_calendar:calendars' 'destination' %}">
+                    Select
                 </a>
         {% endif %}
     {% endif %}
@@ -63,20 +68,20 @@
 <!--Deduplify link/button-->
 
 {% if progress.source and progress.destination %}
-<div id="deduplify">
-        <a class='button' id='deduplify-button' 
-            href="{%url 'pick_calendar:deduplify' %}">
-            Deduplify
-        </a>
-</div>
-
-<div class="spinner-div" >
-    <div id="spinner" class="throbber-loader" style="display:none;" >
-      Loading…
+  {% if not progress.log or progress.dryrun %}
+    <div id="deduplify">
+            <a class='btn btn-danger' id='deduplify-button' 
+                href="{%url 'pick_calendar:deduplify' %}">
+                Deduplify
+            </a>
     </div>
-</div>
 
-
+    <div class="spinner-div" >
+        <div id="spinner" class="throbber-loader" style="display:none;" >
+          Loading…
+        </div>
+    </div>
+  {% endif %}
 {% endif %}
 
 
@@ -165,8 +170,6 @@
 {% endif %}
 </div>
 
-
-<!--<div id="height">&nbsp;</div>-->
 
 {% endblock %}
 
