@@ -3,8 +3,8 @@
   {% block head %}
   <head>
     <meta charset="utf-8">
-    <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">-->
-    <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <!--<meta name="description" content="">-->
     <!--<meta name="author" content="">-->
@@ -12,45 +12,52 @@
     <title>gcal_dedup</title>
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'style.new.css' %}" />
     <script src="{% static 'jquery-1.11.3.js' %}"></script>
-
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'bootstrap.css' %}" />
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'bootstrap_narrow.css' %}" />
   </head>
   {% endblock head %}
 
   <body>
 
-
-<!--navbar-->
-<div class="navbar">
-    <div class="nav-left">
-        <ul>
-            <li>
-                <a href="{%url 'pick_calendar:reset' %}">gcal_dedup</a>
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active">
+              <a href="{%url 'pick_calendar:reset' %}">Home</a>
             </li>
-        </ul>
-    </div>
-
-    <div class="nav-right">
-        <ul>
             {% if user.username %}
-                <li>
-                    {{ user.username }}
-                </li>
-                <li>
-                    <a href="{%url 'gcal_auth:logout' %}">logout</a>
-                </li>
+              <li role="presentation">
+                <a href="{%url 'gcal_auth:logout' %}">logout</a>
+              </li>
             {% else %}
-                <li>
-                    <a href="{%url 'gcal_auth:login' %}">login</a>
-                </li>
+              <li role="presentation">
+                <a href="{%url 'gcal_auth:login' %}">login</a>
+              </li>
             {% endif %}
-        </ul>
-    </div>
-</div>
+          </ul>
+        </nav>
+      </div>
 
-<div id="content">
-    {% block content %}{% endblock %}
-</div>
+      <div id="username">
+        {% if user.username %}
+          {{ user.username }}
+        {% endif %}
+      </div>
 
-</body>
+      <div id="content">
+        {% block content %}{% endblock %}
+      </div>
+
+      <footer class="footer">
+        <p>&copy; 2015</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+  </body>
 </html>
