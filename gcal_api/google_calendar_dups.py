@@ -22,12 +22,8 @@ class GCalMover(object):
     """A class for moving/deduplifying google calendar events."""
 
     def __init__(self, 
-                 credentials,
-                 sort_method='created',
-                 ascending=True):
+            credentials):
         self.credentials = credentials
-        self.sort_method = sort_method
-        self.ascending = ascending
         self._get_gcal_service()
 
     def _get_gcal_service(self):
@@ -56,6 +52,10 @@ class GCalMover(object):
     def deduplify(self, 
                   source_calendars,
                   destination_calendar,
+                  sort_method='created',
+                  ascending=True,
+                  ignore_attrs_num=False,
+                  size_diff_threshold=.85,
                   replace_text=[],
                   dry_run=False,
                   html=True,
@@ -79,6 +79,10 @@ class GCalMover(object):
         self.source_calendars = source_calendars
         self.destination_calendar = destination_calendar
         self.destination_calendar_id = destination_calendar.get('id')
+        self.sort_method = sort_method
+        self.ascending = ascending
+        self.ignore_attrs_num = ignore_attrs_num
+        self.size_diff_threshold = size_diff_threshold
         self.replace_text = replace_text
         self.dry_run = dry_run
         self.html = html
@@ -89,8 +93,8 @@ class GCalMover(object):
             self._group_events(source_calendar.get('id'))
         for group in self.events.values():
             if len(group) > 1:
+                from pudb import set_trace; set_trace()
                 self._process_group(group) 
-        #from pudb import set_trace; set_trace()
         #self.log = '\n'.join(self.log)
         return self.log
 
@@ -279,7 +283,7 @@ class GCalMover(object):
         group = [g.copy() for g in group]
         self._remove_group_attrs(group)
         sizes = sorted([len(str(i)) for i in group])
-        if sizes[0] / float(sizes[-1]) >= threshold:
+        if sizes[0] / float(sizes[-1]) >= self.size_diff_threshold:
             return True
         else:
             return False
@@ -318,7 +322,7 @@ class GCalMover(object):
         if not self._is_same_sized(group):
             msg = 'Group skipped (due to size differences):'
             return (False, msg)
-        elif not self._has_enough_attrs(group):
+        elif not self.ignore_attrs_num and not self._has_enough_attrs(group):
             msg = 'Group skipped (due to missing attributes):'
             return (False, msg)
         else:
@@ -330,8 +334,8 @@ class GCalMover(object):
             event_id = event.get('id')
             calendar_id = event.get('organizer').get('email')
             moved = self.gcal_events.move(calendarId=calendar_id, 
-                                    eventId=event_id,
-                                    destination=destination_calendar_id).execute()
+                            eventId=event_id,
+                            destination=destination_calendar_id).execute()
             return True
         except:
             return False

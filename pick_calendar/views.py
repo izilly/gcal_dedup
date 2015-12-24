@@ -94,12 +94,15 @@ def deduplify(request):
     storage = Storage(CredentialsModel, 'id', user, 'credential')
     creds = storage.get()
     sort_method, ascending = _get_sort_method(request)
-    gcm = GCalMover(creds,
-                    sort_method=sort_method,
-                    ascending=ascending)
+    gcm = GCalMover(creds)
     log = gcm.deduplify(source, destination, 
-                        html=False,
+                        sort_method=sort_method,
+                        ascending=ascending,
+                        ignore_attrs_num=True,
+                        size_diff_threshold=.6,
                         dry_run=progress['dryrun'],
+                        html=False,
+                        std_out=False,
                         )
     #from pudb import set_trace; set_trace()
     progress['log'] = log
