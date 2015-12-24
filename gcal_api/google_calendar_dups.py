@@ -91,7 +91,6 @@ class GCalMover(object):
             self._group_events(source_calendar.get('id'))
         for group in self.events.values():
             if len(group) > 1:
-                from pudb import set_trace; set_trace()
                 self._process_group(group) 
         #self.log = '\n'.join(self.log)
         return self.log
@@ -219,15 +218,6 @@ class GCalMover(object):
         """Sort the events in a group to determine which event to keep."""
         events = []
         if len(group) > 1:
-
-            created = self._sort_by_key(group, 'created', ascending)
-            updated = self._sort_by_key(group, 'updated', ascending)
-            chars = self._sort_by_text_len(group, ascending)
-            if not created[0] == updated[0]:
-                sort_diff_times = True
-            if not created[0] == updated[0] == chars[0]:
-                sort_diff = True
-
             if sort_method in ['created', 'updated']:
                 events = self._sort_by_key(group, sort_method, ascending)
             elif sort_method == 'min_chars':

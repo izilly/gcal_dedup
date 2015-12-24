@@ -98,12 +98,15 @@ def deduplify(request):
     storage = Storage(CredentialsModel, 'id', user, 'credential')
     creds = storage.get()
     sort_method, ascending = _get_sort_method(request)
+    ascending = progress['ascending']
+    ignore_attrs_num = progress['ignore_attrs_num']
+    size_diff_threshold = float(progress['size_diff_threshold']) / 100.0
     gcm = GCalMover(creds)
     log = gcm.deduplify(source, destination, 
                         sort_method=sort_method,
                         ascending=ascending,
-                        ignore_attrs_num=True,
-                        size_diff_threshold=.6,
+                        ignore_attrs_num=ignore_attrs_num,
+                        size_diff_threshold=size_diff_threshold,
                         dry_run=progress['dryrun'],
                         std_out=False,
                         )
@@ -190,7 +193,7 @@ def settings_update(request, default=False):
         progress['updated_earliest'] = False
         progress['min_chars'] = False
         progress['select_original'] = 'created_earliest'
-        progress['ignore_attrs_num'] = True
+        progress['ignore_attrs_num'] = False
         progress['ascending'] = True
         progress['descending'] = False
         progress['size_diff_threshold'] = 85;
