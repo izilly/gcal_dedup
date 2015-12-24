@@ -93,7 +93,10 @@ def deduplify(request):
     user = request.user 
     storage = Storage(CredentialsModel, 'id', user, 'credential')
     creds = storage.get()
-    gcm = GCalMover(creds)
+    sort_method, ascending = _get_sort_method(request)
+    gcm = GCalMover(creds,
+                    sort_method=sort_method,
+                    ascending=ascending)
     log = gcm.deduplify(source, destination, 
                         html=False,
                         dry_run=progress['dryrun'],
@@ -103,6 +106,23 @@ def deduplify(request):
     progress['completed'] = True if not progress['dryrun'] else 'dryrun'
     request.session['progress'] = progress
     return redirect('pick_calendar:index')
+
+def _get_sort_method(request):
+    progress = get_progress(request)
+    if progress.get('created_earliest') == True:
+        sort_method = 'created'
+    elif progress.get('updated_earliest') == True:
+        sort_method = 'updated'
+    elif progress.get('min_chars') == True:
+        sort_method = 'textlen'
+    else:
+        sort_method = 'created'
+    if progress.get('descending') == True:
+        ascending = False
+    else:
+        ascending = True
+    return sort_method, ascending
+
 
 def settings(request):
     #from pudb import set_trace; set_trace()

@@ -21,8 +21,13 @@ def output_rpt_line():
 class GCalMover(object):
     """A class for moving/deduplifying google calendar events."""
 
-    def __init__(self, credentials):
+    def __init__(self, 
+                 credentials,
+                 sort_method='created',
+                 ascending=True):
         self.credentials = credentials
+        self.sort_method = sort_method
+        self.ascending = ascending
         self._get_gcal_service()
 
     def _get_gcal_service(self):
@@ -164,7 +169,7 @@ class GCalMover(object):
     def _process_group(self, 
                        group):
         """Sort groups, then move duplicate events to destination calendar."""
-        group = self._sort_group(group)
+        group = self._sort_group(group, self.sort_method, self.ascending)
         tests_passed, tests_msg = self._run_group_tests(group)
         for g in group:
             self._add_datetimes_pretty(g)
@@ -207,13 +212,40 @@ class GCalMover(object):
         dt_string = dt.strftime('%m/%d/%Y %I:%M%p')
         return dt_string
 
-    def _sort_group(self, group):
+    def _sort_group(self, group, sort_method='created', ascending=True):
+        #from pudb import set_trace; set_trace()
         """Sort the events in a group to determine which event to keep."""
         events = []
         if len(group) > 1:
-            events = sorted(group, key=lambda item: item['created'])
-            events = sorted(events, 
-                            key=self._get_text_len)
+
+            created = self._sort_by_key(group, 'created', ascending)
+            updated = self._sort_by_key(group, 'updated', ascending)
+            chars = self._sort_by_text_len(group, ascending)
+            if not created[0] == updated[0]:
+                sort_diff_times = True
+            if not created[0] == updated[0] == chars[0]:
+                sort_diff = True
+
+            if sort_method in ['created', 'updated']:
+                events = self._sort_by_key(group, sort_method, ascending)
+            elif sort_method == 'min_chars':
+                events = self._sort_by_text_len(group, ascending)
+        return events
+
+            #events = sorted(group, key=lambda item: item['created'])
+            #events = sorted(events, 
+                            #key=self._get_text_len)
+        #return events
+
+    def _sort_by_key(self, group, key, ascending=True):
+        events = sorted(group, key=lambda item: item[key], 
+                        reverse=not ascending)
+        return events
+
+    def _sort_by_text_len(self, group, ascending=True):
+        events = sorted(group, 
+                        key=self._get_text_len,
+                        reverse=not ascending)
         return events
 
     def _get_text_len(self, event):
