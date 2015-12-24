@@ -32,6 +32,10 @@ def get_progress(request, reset=False):
                     'created_earliest': True,
                     'updated_earliest': False,
                     'min_chars': False,
+                    'ignore_attrs_num': False,
+                    'size_diff_threshold': 85,
+                    'ascending': True,
+                    'descending': False,
                     'rep1f': '',
                     'rep1r': '',
                     }
@@ -142,6 +146,10 @@ def settings(request):
                'created_earliest': progress['created_earliest'],
                'updated_earliest': progress['updated_earliest'],
                'min_chars': progress['min_chars'],
+               'ignore_attrs_num': progress['ignore_attrs_num'],
+               'size_diff_threshold': progress['size_diff_threshold'],
+               'ascending': progress['ascending'],
+               'descending': progress['descending'],
               }
     context_json = json.dumps(context)
     return render(request, 'pick_calendar/settings.html', {'context': context_json})
@@ -172,12 +180,20 @@ def settings_update(request, default=False):
     #progress['rep1f'] = rep1f 
     #progress['rep1r'] = rep1r
 
+    ascending = request.POST.get('ascending')
+    #if ascending is not False:
+        #ascending = True;
+
     if default:
         progress['dryrun'] = False
         progress['created_earliest'] = True
         progress['updated_earliest'] = False
         progress['min_chars'] = False
         progress['select_original'] = 'created_earliest'
+        progress['ignore_attrs_num'] = True
+        progress['ascending'] = True
+        progress['descending'] = False
+        progress['size_diff_threshold'] = 85;
         request.session['progress'] = progress
         return redirect('pick_calendar:settings')
     else:
@@ -187,6 +203,10 @@ def settings_update(request, default=False):
         progress['created_earliest'] = select_original == 'created_earliest'
         progress['updated_earliest'] = select_original == 'updated_earliest'
         progress['min_chars'] = select_original == 'min_chars'
+        progress['ignore_attrs_num'] = request.POST.get('ignore_attrs_num') is not None
+        progress['ascending'] = ascending == 'ascending'
+        progress['descending'] = ascending == 'descending'
+        progress['size_diff_threshold'] = request.POST.get('size_diff_threshold')
         request.session['progress'] = progress
         return redirect('pick_calendar:index')
 

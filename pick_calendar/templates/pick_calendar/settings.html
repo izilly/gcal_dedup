@@ -12,52 +12,120 @@
       <form action="{% url 'pick_calendar:settings_update' %}" method="post">
         {% csrf_token %}
 
-        <h5 class="list-group-heading">Dry Run</h3>
+        <!--<h5 class="list-group-heading">Dry Run</h3>-->
+        <!--<label>Options-->
+        <!--</label>-->
 
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" 
-                   id="dryrun" 
-                   name='dryrun' 
-                   value="True">
-            Enabled
-          </label>
+        <div class="form-group">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" 
+                       id="dryrun" 
+                       name='dryrun' 
+                       value="True">
+                Dry Run  (just show report of what would happen.  Don't actually move anything.
+              </label>
+            </div>
         </div>
 
-        <hr />
+        <div class="form-group">
+            <!--<label>Tests (to avoid false positives, etc)</label>-->
 
-        <h5 class="list-group-heading">Select original event by:</h3>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" 
+                       id="ignore_attrs_num" 
+                       name='ignore_attrs_num' 
+                       value="True">
+                Ignore number of fields/attributes
+              </label>
+            </div>
 
-        <div class="radio">
-          <label>
-            <input type="radio" 
-                   name="select_original" 
-                   id="created_earliest" 
-                   value="created_earliest"
-                   checked >
-            Created (earliest)
-          </label>
+
+            <label for="size_diff_threshold">Size difference threshold</label>
+            <input type="number" 
+                   class="form-control" 
+                   id="size_diff_threshold" 
+                   name="size_diff_threshold"
+                   placeholder="85">
+
         </div>
 
-        <div class="radio">
-          <label>
-            <input type="radio" 
-                   name="select_original" 
-                   id="updated_earliest" 
-                   value="updated_earliest" >
-            Updated (earliest)
-          </label>
-        </div>
 
-        <div class="radio">
-          <label>
-            <input type="radio" 
-                   name="select_original" 
-                   id="min_chars" 
-                   value="min_chars" >
-            Minimum Characters
-          </label>
-        </div>
+
+
+
+
+        <!--<hr />-->
+
+
+        <div class="form-group">
+
+            <!--<h5 class="list-group-heading">Select original event by:</h5>-->
+            <label>Select Original Event By:</label>
+
+            <div class="radio">
+              <label>
+                <input type="radio" 
+                       name="select_original" 
+                       id="created_earliest" 
+                       value="created_earliest"
+                       checked >
+                Date/Time Created
+              </label>
+            </div>
+
+            <div class="radio">
+              <label>
+                <input type="radio" 
+                       name="select_original" 
+                       id="updated_earliest" 
+                       value="updated_earliest" >
+                Date/Time Updated
+              </label>
+            </div>
+
+            <div class="radio">
+              <label>
+                <input type="radio" 
+                       name="select_original" 
+                       id="min_chars" 
+                       value="min_chars" >
+                Combined Text-Length
+              </label>
+            </div>
+        </div> <!--form-group-->
+
+        <div class="form-group">
+            <label>Select Original Event (Ascending/Descending)</label>
+
+            <div class="radio">
+              <label>
+                <input type="radio" 
+                       id="ascending" 
+                       name='ascending' 
+                       value="ascending"
+                       checked >
+                Ascending
+              </label>
+            </div>
+
+            <div class="radio">
+              <label>
+                <input type="radio" 
+                       id="descending" 
+                       name='ascending' 
+                       value="descending" >
+                Descending
+              </label>
+            </div>
+        </div> <!--form-group-->
+
+
+
+
+
+
 
         <button type="submit" class="btn btn-primary">Save</button>
         <a href="{% url 'pick_calendar:settings_default' %}">
@@ -85,6 +153,10 @@
     current_settings.created_earliest = {{ context|safe }}.created_earliest;
     current_settings.updated_earliest = {{ context|safe }}.updated_earliest;
     current_settings.min_chars = {{ context|safe }}.min_chars;
+    current_settings.ignore_attrs_num = {{ context|safe }}.ignore_attrs_num;
+    current_settings.ascending = {{ context|safe }}.ascending;
+    current_settings.descending = {{ context|safe }}.descending;
+    current_settings.size_diff_threshold = {{ context|safe }}.size_diff_threshold;
   </script>
   <!--restore current settings-->
   <script src="{% static 'settings.js' %}"></script> 
