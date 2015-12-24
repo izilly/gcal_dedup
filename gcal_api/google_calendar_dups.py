@@ -58,7 +58,6 @@ class GCalMover(object):
                   size_diff_threshold=.85,
                   replace_text=[],
                   dry_run=False,
-                  html=True,
                   std_out=False):
         """Deduplify one or more google calendars.
 
@@ -85,7 +84,6 @@ class GCalMover(object):
         self.size_diff_threshold = size_diff_threshold
         self.replace_text = replace_text
         self.dry_run = dry_run
-        self.html = html
         self.std_out = std_out
         self.events = {}
         self.log = []
@@ -392,7 +390,6 @@ class CLI(object):
                                                      #(r'\\',''), 
                                                      #(r'\n','')],
                                        #dry_run=True,
-                                       html=False,
                                        std_out=True)
         #from pudb import set_trace; set_trace()
 

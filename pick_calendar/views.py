@@ -101,7 +101,6 @@ def deduplify(request):
                         ignore_attrs_num=True,
                         size_diff_threshold=.6,
                         dry_run=progress['dryrun'],
-                        html=False,
                         std_out=False,
                         )
     #from pudb import set_trace; set_trace()
